@@ -1,0 +1,30 @@
+{
+  "ver": "1.0.0",
+  "uuid": "406efae6-2a46-42e7-9e63-5bcecbd0b0ac",
+  "type": "sprite",
+  "wrapMode": "clamp",
+  "filterMode": "bilinear",
+  "subMetas": {
+    "nebulas_logo": {
+      "ver": "1.0.3",
+      "uuid": "114576ef-d1e6-41d4-aa78-864cd1d15ff0",
+      "rawTextureUuid": "406efae6-2a46-42e7-9e63-5bcecbd0b0ac",
+      "trimType": "auto",
+      "trimThreshold": 1,
+      "rotated": false,
+      "offsetX": 0,
+      "offsetY": 0,
+      "trimX": 0,
+      "trimY": 0,
+      "width": 64,
+      "height": 64,
+      "rawWidth": 64,
+      "rawHeight": 64,
+      "borderTop": 0,
+      "borderBottom": 0,
+      "borderLeft": 0,
+      "borderRight": 0,
+      "subMetas": {}
+    }
+  }
+}

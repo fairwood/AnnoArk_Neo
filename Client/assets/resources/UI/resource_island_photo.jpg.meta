@@ -1,0 +1,30 @@
+{
+  "ver": "1.0.0",
+  "uuid": "231b133d-bc04-43fb-a181-09e54b263714",
+  "type": "sprite",
+  "wrapMode": "clamp",
+  "filterMode": "bilinear",
+  "subMetas": {
+    "resource_island_photo": {
+      "ver": "1.0.3",
+      "uuid": "135c8f95-5393-4764-843f-2fc28d8e2755",
+      "rawTextureUuid": "231b133d-bc04-43fb-a181-09e54b263714",
+      "trimType": "auto",
+      "trimThreshold": 1,
+      "rotated": false,
+      "offsetX": 0,
+      "offsetY": 0,
+      "trimX": 0,
+      "trimY": 0,
+      "width": 300,
+      "height": 176,
+      "rawWidth": 300,
+      "rawHeight": 176,
+      "borderTop": 0,
+      "borderBottom": 0,
+      "borderLeft": 0,
+      "borderRight": 0,
+      "subMetas": {}
+    }
+  }
+}
