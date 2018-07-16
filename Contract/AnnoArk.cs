@@ -245,10 +245,6 @@ namespace AnnoArk
 
 		#region User
 
-		/* =================================================
-         * User Functions
-         ====================================================*/
-
 		private static User BytesToUser(byte[] bytes)
         {
             if (bytes.Length == 0)
