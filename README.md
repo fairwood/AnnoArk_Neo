@@ -9,6 +9,7 @@
 
 方舟纪元是一款完整的SLG游戏。玩法包括：城市建设、资源生产、攻打海盗的PVE、掠夺其他玩家的PVP、抢占钻石岛收获数字货币、探索剧情地点解密故事线等等。
 
+![主界面](https://github.com/fairwood/AnnoArk_Neo/blob/master/Marketing/home_preview.jpg)
 ## 建设和生产
 
 20多种建筑，每个建筑有7个等级。
