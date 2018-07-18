@@ -78,8 +78,8 @@
 
 # 联系方式
 
-公众号：史教授
+公众号：![史教授](https://github.com/fairwood/AnnoArk_Neo/blob/master/Marketing/mp_qrcode.jpg)
 
 QQ群：813540914（[点击加群](//shang.qq.com/wpa/qunwpa?idkey=08ac4d0f3638707ff6c6d8cbc358e7ea837f1fcb427f4242e062e6f90d0d88e8)）
 
-个人微信：stv1024
+个人微信：![stv1024](https://github.com/fairwood/AnnoArk_Neo/blob/master/Marketing/me_qrcode.jpg)
