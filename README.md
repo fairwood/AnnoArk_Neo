@@ -35,20 +35,17 @@
 
 我们鼓励专职的打金工作室为其他玩家生产浮力模块等重要资源。
 
-## Bancor交易所
+### Bancor交易所
 
 合约内置一个Bancor模型交易所，所有货物、部队、浮力模块都有相对于GAS的交易对。
 
 价格和货物发行量呈指数关系
 
-<img src="https://latex.codecogs.com/gif.latex?\inline&space;p(x)=A\cdot&space;e^{kx}" title="p(x)=A\cdot e^{kx}" />
+<a href="https://www.codecogs.com/eqnedit.php?latex=\inline&space;p(x)=A\cdot&space;e^{kx}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\inline&space;p(x)=A\cdot&space;e^{kx}" title="p(x)=A\cdot e^{kx}" /></a>
 
-其中，x是发行量，p是当前价格，A是初始价格，k是价格敏感度
+其中，x是发行量，p是当前价格，A是初始价格，k是价格敏感度。
 
-
-
-
-游戏刚上线时，发行量是0，玩家只能买。发行量大于0时则可以卖。
+游戏刚上线时，发行量是0，第一个玩家只能买。当发行量大于0时，玩家可以卖货。
 
 不论游戏活跃人数的多寡，该Bancor交易所都可以撮合交易。
 
