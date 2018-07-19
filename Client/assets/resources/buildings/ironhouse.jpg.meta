@@ -1,0 +1,30 @@
+{
+  "ver": "1.0.0",
+  "uuid": "745163a7-f2fc-407e-ab62-dadf29225d99",
+  "type": "sprite",
+  "wrapMode": "clamp",
+  "filterMode": "bilinear",
+  "subMetas": {
+    "ironhouse": {
+      "ver": "1.0.3",
+      "uuid": "77842165-7757-4b80-b8d1-88561b658f3b",
+      "rawTextureUuid": "745163a7-f2fc-407e-ab62-dadf29225d99",
+      "trimType": "auto",
+      "trimThreshold": 1,
+      "rotated": false,
+      "offsetX": 0,
+      "offsetY": 0,
+      "trimX": 0,
+      "trimY": 0,
+      "width": 160,
+      "height": 160,
+      "rawWidth": 160,
+      "rawHeight": 160,
+      "borderTop": 0,
+      "borderBottom": 0,
+      "borderLeft": 0,
+      "borderRight": 0,
+      "subMetas": {}
+    }
+  }
+}

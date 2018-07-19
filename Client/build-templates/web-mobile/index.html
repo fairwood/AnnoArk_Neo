@@ -38,6 +38,9 @@
   <!--<link rel="apple-touch-icon-precomposed" href=".png" />-->
 
   <link rel="stylesheet" type="text/css" href="style-mobile.css"/>
+  <script type="text/javascript">
+    var oriConsole = window.console;
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/nebpay.js@0.2.0/dist/nebPay.min.js"></script>>
   <script src="https://cdn.jsdelivr.net/npm/nebulas@0.5.2/dist/nebulas.js"></script>
   <script type="text/javascript">
@@ -48,6 +51,7 @@
     var Transaction = require("nebulas").Transaction;
     var Unit = require("nebulas").Unit;
     var NVM = require("nebulas").NVM;
+    window.console = oriConsole;
   </script>
 </head>
 <body>

@@ -23,11 +23,7 @@ export default class HomeUI extends BaseUI {
     lblTotalArkCount: cc.Label = null;
 
     @property(cc.Button)
-    btnClaim0: cc.Button = null;
-    @property(cc.Button)
     btnClaim1: cc.Button = null;
-    @property(cc.Button)
-    btnClaim2: cc.Button = null;
 
     @property(cc.Label)
     lblNickname: cc.Label = null;
@@ -50,16 +46,13 @@ export default class HomeUI extends BaseUI {
         this.lblBlockchainAddress.string = BlockchainMgr.WalletAddress ? BlockchainMgr.WalletAddress : '未获取到钱包地址';
 
         if (DataMgr.myData) {
-            this.btnClaim0.getComponentInChildren(cc.Label).string = DataMgr.myData.arkSize < DataMgr.StdArkSize ? '进入' : '无法领取';
             this.btnClaim1.getComponentInChildren(cc.Label).string = DataMgr.myData.arkSize < DataMgr.StdArkSize ? '领取' : '进入';
             // this.btnClaim2.getComponentInChildren(cc.Label).string = DataMgr.myData.arkSize < DataMgr.StdArkSize ? '领取' : DataMgr.myData.arkSize < DataMgr.LargeArkSize ? '无法领取' : '进入';
-            this.btnClaim0.interactable = DataMgr.myData.arkSize < DataMgr.StdArkSize;
             this.btnClaim1.interactable = true;
             // this.btnClaim2.interactable = DataMgr.myData.arkSize < DataMgr.StdArkSize || DataMgr.myData.arkSize >= DataMgr.LargeArkSize;
             if (DataMgr.myData.nickname) this.lblNickname.string = DataMgr.myData.nickname;
             if (DataMgr.myData.country) this.country = DataMgr.myData.country;
         } else {
-            this.btnClaim0.getComponentInChildren(cc.Label).string = '领取';
             this.btnClaim1.getComponentInChildren(cc.Label).string = '领取';
             // this.btnClaim2.getComponentInChildren(cc.Label).string = '领取';
         }

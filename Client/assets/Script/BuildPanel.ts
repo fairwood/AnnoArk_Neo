@@ -1,6 +1,6 @@
 import { DataMgr } from "./DataMgr";
 import BuildingButton from "./BuildingButton";
-import ArkUI from "./ArkUI";
+import CityUI from "./CityUI";
 
 const {ccclass, property} = cc._decorator;
 
@@ -44,7 +44,7 @@ export default class BuildPanel extends cc.Component {
     }
 
     onBtnExpandClick() {
-        ArkUI.Instance.onBtnExpandClick();
+        CityUI.Instance.onBtnExpandClick();
     }
 
     close() {

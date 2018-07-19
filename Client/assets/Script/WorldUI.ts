@@ -1,7 +1,7 @@
 import CvsMain from "./CvsMain";
 import BaseUI from "./BaseUI";
 import MainCtrl from "./MainCtrl";
-import ArkUI from "./ArkUI";
+import CityUI from "./CityUI";
 import ArkInWorld from "./ArkInWorld";
 import { DataMgr } from "./DataMgr";
 import BlockchainMgr from "./BlockchainMgr";
@@ -220,7 +220,7 @@ export default class WorldUI extends BaseUI {
     }
 
     onGotoArkClick() {
-        CvsMain.EnterUI(ArkUI);
+        CvsMain.EnterUI(CityUI);
     }
 
     onCenterBtnClick() {

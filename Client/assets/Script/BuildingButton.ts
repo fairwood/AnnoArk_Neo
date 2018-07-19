@@ -1,5 +1,5 @@
 import BuildPanel from "./BuildPanel";
-import ArkUI from "./ArkUI";
+import CityUI from "./CityUI";
 import { BuildingInfo, DataMgr, TechInfo } from "./DataMgr";
 import DialogPanel from "./DialogPanel";
 import BuildingInfoPanel from "./UI/BuildingInfoPanel";
@@ -100,6 +100,6 @@ export default class BuildingButton extends cc.Component {
         }
 
         BuildPanel.Hide();
-        ArkUI.Instance.enterBuildMode(this.info);
+        CityUI.Instance.enterBuildMode(this.info);
     }
 }

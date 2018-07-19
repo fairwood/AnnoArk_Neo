@@ -54,7 +54,7 @@ export default class MainCtrl extends cc.Component {
     static Ticks = 0;
 
     start() {
-        CvsMain.EnterUI(IntroUI);
+        CvsMain.EnterUI(HomeUI);
 
         DataMgr.IronMineConfig = [];
         WorldUI.Instance.mineContainer.children.forEach(c => {
