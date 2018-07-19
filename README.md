@@ -41,13 +41,12 @@
 
 价格和货物发行量呈指数关系
 
-x:发行量
+<img src="https://latex.codecogs.com/gif.latex?\inline&space;p(x)=A\cdot&space;e^{kx}" title="p(x)=A\cdot e^{kx}" />
 
-p:当前价格
+其中，x是发行量，p是当前价格，A是初始价格，k是价格敏感度
 
-$$
-p(x)=A*e^(kx)
-$$
+
+
 
 游戏刚上线时，发行量是0，玩家只能买。发行量大于0时则可以卖。
 
