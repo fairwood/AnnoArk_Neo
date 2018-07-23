@@ -12,19 +12,19 @@ namespace AnnoArk
 		public static class Const
         {
 			public const float cityMoveSpeed = 150;
-			public const float raidCityCargoRate = 0.1;
+			public const float raidCityCargoRate = 0.1f;
 			public const float safeZoneLine = 1567;
-			public const float damagePerAttackCity = 0.1;
-			public const float energyCostPerLyExpand = 0.01;
+			public const float damagePerAttackCity = 0.1f;
+			public const float energyCostPerLyExpand = 0.01f;
 			public const float nukemissSpeed = 3600;
 			public const float nukeRadius = 120;
 			public const float totalPirateCnt = 1000;
 			public const float pirateCargoC0 = 100;
 			public const float pirateArmyC0 = 10;
 			public const float piratePeriodTimestamp = 0;
-			public static User[] allUserList = [];
-			public static Island[] allIslands = [];
-			public static string[] allCargoNameList = [];
+			public static User[] allUserList = new User[];
+			public static Island[] allIslands = new Island[];
+			public static string[] allCargoNameList = new string[];
         }
 
 		public static class Utils
@@ -359,6 +359,81 @@ namespace AnnoArk
 		}
 
 		#endregion
+
+
+		//=====Bancor of floatmod
+		public static void bancorTrade(cargoName, b) {
+			let value = Blockchain.transaction.value;
+			let userAddress = Blockchain.transaction.from;
+			let user = this.allUsers.get(userAddress);
+			if (user === null) {
+				throw new Error("User NOT FOUND.");
+			}
+			let A = this.bancorInfos.get(cargoName + 'A');
+			let K = this.bancorInfos.get(cargoName + 'K');
+			let X = this.bancorInfos.get(cargoName + 'X');
+			if (b > 0) { //buy
+				//check value
+				let c = A / K * (Math.exp(K * (X + b)) - Math.exp(K * X));
+				if (value < c * 1e18) {
+					throw new Error("Value NOT ENOUGH to buy. need " + c + ".You give " + value);
+				}
+				//return exceeded part
+				let returnMoney = (value - c * 1e18);
+				if (returnMoney > 1e-4) {
+					let returnWei = new BigNumber(Math.floor(returnMoney / 1e8) * 1e8);
+					this._transaction(userAddress, returnWei);
+				}
+
+				//add cargo
+				this._userAddCargo(user, cargoName, b);
+			} else if (b < 0) { //sell
+				user.cargoData[cargoName] -= b;
+				if (user.cargoData[cargoName] < 0) {
+					throw new Error("Your cargo NOT ENOUGH " + (user.cargoData[cargoName] + b));
+				}
+				let Fee = this.bancorInfos.get(cargoName + 'Fee');
+				let c = A / K * (Math.exp(K * X) - Math.exp(K * (X + b)));
+				let money = new BigNumber(Math.floor(c * (1 - Fee) * 1e10) * 1e8);
+				this._transaction(userAddress, money);
+			}
+			//set x
+			X += b;
+			if (X < 0 && b < 0) {
+				throw new Error("Bid demand NOT ENOUGH." + X);
+			}
+			this.bancorInfos.set(cargoName + 'X', X);
+			//set User
+			this.allUsers.set(userAddress, user);
+			return {
+				"success": true,
+			};
+		};
+		public static void setBancorInfo(cargoName, A, K, X, Fee) {
+			if (Blockchain.transaction.from != this.adminAddress) {
+				throw new Error("Permission denied.");
+			}
+			this.bancorInfos.set(cargoName + 'A', A);
+			this.bancorInfos.set(cargoName + 'K', K);
+			this.bancorInfos.set(cargoName + 'X', X);
+			this.bancorInfos.set(cargoName + 'Fee', Fee);
+			return {
+				"success": true,
+			};
+		};
+		public static void getBancorInfo(cargoName) {
+			let A = this.bancorInfos.get(cargoName + 'A');
+			let K = this.bancorInfos.get(cargoName + 'K');
+			let X = this.bancorInfos.get(cargoName + 'X');
+			let Fee = this.bancorInfos.get(cargoName + 'Fee');
+			return {
+				cargoName: cargoName,
+				A: A,
+				K: K,
+				X: X,
+				Fee: Fee,
+			}
+		};
 
 		public static Global GetGlobal(){
 			byte[] raw = Utils.GetStorageWithKey("G");
