@@ -11,11 +11,20 @@ namespace AnnoArk
     {
 		public static class Const
         {
-            public const float cityMoveSpeed = 100;
+			public const float cityMoveSpeed = 150;
+			public const float raidCityCargoRate = 0.1;
+			public const float safeZoneLine = 1567;
+			public const float damagePerAttackCity = 0.1;
 			public const float energyCostPerLyExpand = 0.01;
-			public const int totalPirateCnt = 10000;
+			public const float nukemissSpeed = 3600;
+			public const float nukeRadius = 120;
+			public const float totalPirateCnt = 1000;
 			public const float pirateCargoC0 = 100;
 			public const float pirateArmyC0 = 10;
+			public const float piratePeriodTimestamp = 0;
+			public static User[] allUserList = [];
+			public static Island[] allIslands = [];
+			public static string[] allCargoNameList = [];
         }
 
 		public static class Utils
