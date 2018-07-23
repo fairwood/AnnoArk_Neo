@@ -11,6 +11,8 @@ namespace AnnoArk
     {
 		public static class Const
         {
+        	public const string PxUser = "U";
+        	public const string PxBancor = "B";
 			public const float cityMoveSpeed = 150;
 			public const float raidCityCargoRate = 0.1f;
 			public const float safeZoneLine = 1567;
@@ -46,8 +48,6 @@ namespace AnnoArk
 					}
 					return r;
 				}
-
-				//return string.Join(Const.Splitter, elements);
 			}
 
 			public static byte[] KeyPath(byte[] splitter, params string[] elements)
@@ -79,7 +79,7 @@ namespace AnnoArk
 				return Storage.Get(Storage.CurrentContext, key);
 			}
 
-			public static byte SetStorageWithKeyPath(byte[] value, params string[] elements)
+			public static byte SetStorageWithKeyPath(params string[] elements, byte[] value)
 			{
 				return SetStorageWithKey(KeyPath(elements), value);
 			}
@@ -153,6 +153,15 @@ namespace AnnoArk
 			public bool alive;
         }
 
+		[Serializable]
+        public class Bancor
+        {
+        	public object a;
+        	public object k;
+        	public object x;
+        	public object fee;
+        }
+
 		#region Main
 		public static readonly byte[] Owner = "AQZSaHrJfwj8AYH38FdC6zR1TQhcAdm5SE".ToScriptHash();
 
@@ -170,7 +179,7 @@ namespace AnnoArk
 			}
 			else if(Runtime.Trigger == TriggerType.Application){
 				if (operation == "userRegister")
-                {// Register new user, will generate a few cards thereof
+                {// Register new user
 
                     return UserRegister(args);
                 }
@@ -360,66 +369,11 @@ namespace AnnoArk
 
 		#endregion
 
-
-		//=====Bancor of floatmod
-		public static void bancorTrade(cargoName, b) {
-			let value = Blockchain.transaction.value;
-			let userAddress = Blockchain.transaction.from;
-			let user = this.allUsers.get(userAddress);
-			if (user === null) {
-				throw new Error("User NOT FOUND.");
-			}
-			let A = this.bancorInfos.get(cargoName + 'A');
-			let K = this.bancorInfos.get(cargoName + 'K');
-			let X = this.bancorInfos.get(cargoName + 'X');
-			if (b > 0) { //buy
-				//check value
-				let c = A / K * (Math.exp(K * (X + b)) - Math.exp(K * X));
-				if (value < c * 1e18) {
-					throw new Error("Value NOT ENOUGH to buy. need " + c + ".You give " + value);
-				}
-				//return exceeded part
-				let returnMoney = (value - c * 1e18);
-				if (returnMoney > 1e-4) {
-					let returnWei = new BigNumber(Math.floor(returnMoney / 1e8) * 1e8);
-					this._transaction(userAddress, returnWei);
-				}
-
-				//add cargo
-				this._userAddCargo(user, cargoName, b);
-			} else if (b < 0) { //sell
-				user.cargoData[cargoName] -= b;
-				if (user.cargoData[cargoName] < 0) {
-					throw new Error("Your cargo NOT ENOUGH " + (user.cargoData[cargoName] + b));
-				}
-				let Fee = this.bancorInfos.get(cargoName + 'Fee');
-				let c = A / K * (Math.exp(K * X) - Math.exp(K * (X + b)));
-				let money = new BigNumber(Math.floor(c * (1 - Fee) * 1e10) * 1e8);
-				this._transaction(userAddress, money);
-			}
-			//set x
-			X += b;
-			if (X < 0 && b < 0) {
-				throw new Error("Bid demand NOT ENOUGH." + X);
-			}
-			this.bancorInfos.set(cargoName + 'X', X);
-			//set User
-			this.allUsers.set(userAddress, user);
-			return {
-				"success": true,
-			};
-		};
-		public static void setBancorInfo(cargoName, A, K, X, Fee) {
-			if (Blockchain.transaction.from != this.adminAddress) {
-				throw new Error("Permission denied.");
-			}
+		public static void setBancorInfo(uid, cargoName, A, K, X, Fee) {
 			this.bancorInfos.set(cargoName + 'A', A);
 			this.bancorInfos.set(cargoName + 'K', K);
 			this.bancorInfos.set(cargoName + 'X', X);
 			this.bancorInfos.set(cargoName + 'Fee', Fee);
-			return {
-				"success": true,
-			};
 		};
 		public static void getBancorInfo(cargoName) {
 			let A = this.bancorInfos.get(cargoName + 'A');
