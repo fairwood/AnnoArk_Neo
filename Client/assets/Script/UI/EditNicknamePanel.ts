@@ -2,13 +2,14 @@ import { DataMgr } from "../DataMgr";
 import ToastPanel from "./ToastPanel";
 import HomeUI from "../HomeUI";
 import { FlagMgr } from "./FlagMgr";
+import CvsMain from "../CvsMain";
 
 const { ccclass, property } = cc._decorator;
 
 @ccclass
 export default class EditNicknamePanel extends cc.Component {
     static Instance: EditNicknamePanel;
-    onLoad() { EditNicknamePanel.Instance = this; this.node.active = false; this.init(); }
+    onLoad() { EditNicknamePanel.Instance = this; this.init(); }
 
     @property(cc.EditBox)
     edtNickname: cc.EditBox = null;
@@ -39,8 +40,8 @@ export default class EditNicknamePanel extends cc.Component {
     }
 
     onEnable() {
-        this.edtNickname.string = DataMgr.myData ? DataMgr.myData.nickname : HomeUI.Instance.lblNickname.string;
-        this.selectedCountry = HomeUI.Instance.country ? HomeUI.Instance.country : (DataMgr.myData ? DataMgr.myData.country : null);
+        this.edtNickname.string = DataMgr.myUser ? DataMgr.myUser.nickname : HomeUI.Instance.lblNickname.string;
+        this.selectedCountry = HomeUI.Instance.country ? HomeUI.Instance.country : (DataMgr.myUser ? DataMgr.myUser.country : null);
         //TODO:国旗
         let myFlagNode = this.flagContainer.children.find(c => c.name == this.selectedCountry);
         if (myFlagNode) {
@@ -58,9 +59,9 @@ export default class EditNicknamePanel extends cc.Component {
     }
 
     onConfirmClick() {
-        if (DataMgr.myData) {
-            DataMgr.myData.nickname = this.edtNickname.string;
-            DataMgr.myData.country = this.selectedCountry;
+        if (DataMgr.myUser) {
+            DataMgr.myUser.nickname = this.edtNickname.string;
+            DataMgr.myUser.country = this.selectedCountry;
         }
         HomeUI.Instance.lblNickname.string = this.edtNickname.string;
         HomeUI.Instance.country = this.selectedCountry;
@@ -69,7 +70,7 @@ export default class EditNicknamePanel extends cc.Component {
     }
 
     close() {
-        this.node.active = false;
+        this.node.destroy();
+        EditNicknamePanel.Instance = null;
     }
-
 }

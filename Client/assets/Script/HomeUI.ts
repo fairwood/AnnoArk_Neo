@@ -1,13 +1,13 @@
 import CvsMain from "./CvsMain";
 import BaseUI from "./BaseUI";
 import MainCtrl from "./MainCtrl";
-import { DataMgr, UserData, CargoData, TechData } from "./DataMgr";
+import { DataMgr, UserData, CargoData, TechData, LocationData } from "./DataMgr";
 import WorldUI from "./WorldUI";
 import ToastPanel from "./UI/ToastPanel";
 import BlockchainMgr from "./BlockchainMgr";
-import DialogPanel from "./DialogPanel";
 import EditNicknamePanel from "./UI/EditNicknamePanel";
 import { FlagMgr } from "./UI/FlagMgr";
+import DialogPanel from "./UI/DialogPanel";
 
 const { ccclass, property } = cc._decorator;
 
@@ -21,12 +21,10 @@ export default class HomeUI extends BaseUI {
 
     @property(cc.Label)
     lblTotalArkCount: cc.Label = null;
-
-    @property(cc.Button)
-    btnClaim1: cc.Button = null;
-
     @property(cc.Label)
     lblNickname: cc.Label = null;
+    @property(cc.Label)
+    lblLv: cc.Label = null;
     @property(cc.Sprite)
     sprFlag: cc.Sprite = null;
     country: string;
@@ -34,96 +32,86 @@ export default class HomeUI extends BaseUI {
     @property(cc.Label)
     lblMusicButton: cc.Label = null;
 
-    @property(cc.Label)
-    lblBlockchainAddress: cc.Label = null;
+    @property(cc.EditBox)
+    edtBlockchainAddress: cc.EditBox = null;
+
+    refreshCountdown = 0;
 
     start() {
-        ToastPanel.Toast('正在读取您的钱包信息，如果您在用钱包玩游戏，请稍候');
+        ToastPanel.Toast('正在读取您的钱包信息，请稍候');
+    }
+
+    update(dt) {
+
+        if (this.refreshCountdown < 0) {
+            this.refresh();
+        }
+
+        this.refreshCountdown -= dt;
+    }
+
+    refresh() {
+        if (DataMgr.myUser) {
+            if (DataMgr.myUser.nickname) this.lblNickname.string = DataMgr.myUser.nickname;
+            if (DataMgr.myUser.country) this.country = DataMgr.myUser.country;
+            this.lblLv.string = 'Level ' + (Math.floor(Math.pow(DataMgr.myUser.expandCnt, 0.5)) + 1).toFixed();
+        }
+        FlagMgr.setFlag(this.sprFlag, this.country);
+        this.lblTotalArkCount.string = (Object.keys(DataMgr.allUsers).length).toFixed();
+
+        this.refreshCountdown = 1;
+
         this.lblMusicButton.string = MainCtrl.Instance.getComponent(cc.AudioSource).volume > 0 ? '音乐：开' : '音乐：关';
     }
 
-    update() {
-        this.lblBlockchainAddress.string = BlockchainMgr.WalletAddress ? BlockchainMgr.WalletAddress : '未获取到钱包地址';
-
-        if (DataMgr.myData) {
-            this.btnClaim1.getComponentInChildren(cc.Label).string = DataMgr.myData.arkSize < DataMgr.StdArkSize ? '领取' : '进入';
-            // this.btnClaim2.getComponentInChildren(cc.Label).string = DataMgr.myData.arkSize < DataMgr.StdArkSize ? '领取' : DataMgr.myData.arkSize < DataMgr.LargeArkSize ? '无法领取' : '进入';
-            this.btnClaim1.interactable = true;
-            // this.btnClaim2.interactable = DataMgr.myData.arkSize < DataMgr.StdArkSize || DataMgr.myData.arkSize >= DataMgr.LargeArkSize;
-            if (DataMgr.myData.nickname) this.lblNickname.string = DataMgr.myData.nickname;
-            if (DataMgr.myData.country) this.country = DataMgr.myData.country;
-        } else {
-            this.btnClaim1.getComponentInChildren(cc.Label).string = '领取';
-            // this.btnClaim2.getComponentInChildren(cc.Label).string = '领取';
-        }
-
-        let self = this;
-        if (MainCtrl.Ticks % 50 == 0) FlagMgr.setFlag(this.sprFlag, this.country);
-        if (MainCtrl.Ticks % 100 == 0) this.lblTotalArkCount.string = (Object.keys(DataMgr.othersData).length + 1).toFixed();
-
-    }
-
-    onClaim(event, index: string) {
+    onClaim(event) {
         //检查昵称、国家
         if (!this.lblNickname.string || !this.country) {
-            EditNicknamePanel.Instance.node.active = true;
+            CvsMain.OpenPanel(EditNicknamePanel);
             ToastPanel.Toast('请先设置国旗和昵称');
             return;
         }
-        if (DataMgr.myData) {
-            switch (index) {
-                case '0': {
-                    if (DataMgr.myData.arkSize < DataMgr.StdArkSize) {
-                        //进入
-                        CvsMain.EnterUI(WorldUI);
-                    }
-                    break;
-                }
-                case '1': {
-                    CvsMain.EnterUI(WorldUI);
-                    break;
-                }
-                case '2': {
-                    if (DataMgr.myData.arkSize < DataMgr.StdArkSize) {
-                        //领取，调用合约
-                        BlockchainMgr.Instance.claimArk(0.01);
-                    } else if (DataMgr.myData.arkSize >= DataMgr.LargeArkSize) {
-                        //进入
-                        CvsMain.EnterUI(WorldUI);
-                    }
-                    break;
-                }
-            }
+        if (DataMgr.myUser) {
+            CvsMain.EnterUI(WorldUI);
         } else {//DataMgr.myData == null
-            switch (index) {
-                case '0': {
-                    DataMgr.myData = MainCtrl.Instance.generateSmallArkData();
-                    ToastPanel.Toast('领取成功，可进入方舟');
-                    break;
+            const nickname = HomeUI.Instance.lblNickname.string;
+            const country = HomeUI.Instance.country;
+            BlockchainMgr.Instance.callFunction('claimNewUser', [nickname, country], 0, (resp) => {
+                console.log("claimNewUser: ", resp);
+                if (resp.toString().substr(0, 5) != 'Error') {
+                    DialogPanel.PopupWith2Buttons('正在发送方舟，请等候15秒',
+                        '区块链交易已发送，等待出块\nTxHash:' + resp.txhash, '查看交易', () => {
+                            window.open('https://explorer.nebulas.io/#/tx/' + resp.txhash);
+                        }, '确定', null);
+                } else {
+                    ToastPanel.Toast('交易失败:' + resp);
                 }
-                case '1': {
-                    //调用合约
-                    BlockchainMgr.Instance.claimArk(0);
-                    break;
-                }
-                case '2': {
-                    //调用合约
-                    BlockchainMgr.Instance.claimArk(0.01);
-                    break;
-                }
-            }
+            });
         }
     }
 
     onBtnEditNicknameClick() {
-        EditNicknamePanel.Instance.node.active = true;
+        CvsMain.OpenPanel(EditNicknamePanel);
+    }
+
+    onWatchWorldClick() {
+        CvsMain.EnterUI(WorldUI);
     }
 
     onBtnSponsorClick() {
         // CvsMain.EnterUI(WorldUI);
     }
 
-    onAddressClick() {
+    onInputAddress(edt) {
+        console.log('手动输入地址', edt.string);
+        const address = edt.string;
+        if (address) {
+            BlockchainMgr.WalletAddress = address;
+            BlockchainMgr.Instance.fetchAllDataCountdown = 1;
+        }
+    }
+
+    onExplorerClick() {
         window.open('https://explorer.nebulas.io/address/' + BlockchainMgr.WalletAddress);
     }
 
@@ -131,19 +119,56 @@ export default class HomeUI extends BaseUI {
         console.log('哪有白皮书')
     }
 
-    onBtnClearStorageClick() {
-        cc.sys.localStorage.clear();
-        setTimeout(() => location.reload(), 100);
-        console.log('成功清除存储');
-    }
+    // onBtnClearStorageClick() {
+    //     cc.sys.localStorage.clear();
+    //     setTimeout(() => location.reload(), 100);
+    //     console.log('成功清除存储');
+    // }
 
     onBtnSwitchMusicClick() {
         const as = MainCtrl.Instance.getComponent(cc.AudioSource);
         as.volume = as.volume > 0 ? 0 : 0.25;
         this.lblMusicButton.string = as.volume > 0 ? '音乐：开' : '音乐：关';
     }
+    onInstallWalletClick() {
+        window.open("https://github.com/ChengOrangeJu/WebExtensionWallet");
+    }
 
     onTestCheat0Click() {
-        DataMgr.myCargoData.forEach(d => d.amount = 1e6);
+        let curTime = Number(new Date());
+        let user = new UserData();
+        DataMgr.myUser = user;
+        user.address = "testaddress";
+        user.nickname = "测试昵称";
+        user.country = "cn";
+        user.buildingMap = {
+            '-1,1': { id: "ironcoll", lv: 0, justBuildOrUpgrade: true },
+            '-1,2': { id: "energycoll", lv: 1, justBuildOrUpgrade: true },
+            '-2,2': { id: "fighterprod", lv: 2, recoverTime: curTime + 10 * 60e3, justBuildOrUpgrade: true },
+            '-2,3': { id: "bomberprod", lv: 3, recoverTime: curTime - 10e4, justBuildOrUpgrade: true },
+            '-3,3': { id: "laserprod", lv: 4, recoverTime: curTime + 100 * 60e3, justBuildOrUpgrade: false },
+        };
+        user.expandCnt = 1;
+        user.expandMap = {
+            '-1,1': { order: 0 },
+            // '-1,2': { order: 1 },
+            // '-2,2': { order: 2 },
+            // '-2,3': { order: 3 },
+            // '-3,3': { order: 3 },
+        };
+        user.cargoData = {
+            iron: 320,
+            energy: 120,
+        };
+        user.locationData = new LocationData();
+        user.locationData = {
+            speed: 100,
+            lastLocationX: -4050,
+            lastLocationY: -230,
+            lastLocationTime: curTime - 100000,
+            destinationX: 3920,
+            destinationY: 2390
+        }
+        user.collectingStarIndex = 24;
     }
 }

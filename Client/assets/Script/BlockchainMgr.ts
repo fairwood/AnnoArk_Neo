@@ -1,5 +1,4 @@
 import { DataMgr, UserData, IslandData } from "./DataMgr";
-import DialogPanel from "./DialogPanel";
 import WorldUI from "./WorldUI";
 import ToastPanel from "./UI/ToastPanel";
 import CityUI from "./CityUI";
@@ -7,6 +6,7 @@ import CvsMain from "./CvsMain";
 import HomeUI from "./HomeUI";
 import AttackIslandPanel from "./UI/AttackIslandPanel";
 import MainCtrl from "./MainCtrl";
+import DialogPanel from "./UI/DialogPanel";
 
 const { ccclass, property } = cc._decorator;
 
@@ -24,8 +24,9 @@ export default class BlockchainMgr extends cc.Component {
         BlockchainMgr.Instance = this;
     }
 
-    static BlockchainUrl: string = 'https://mainnet.nebulas.io';
+    // static BlockchainUrl: string = 'https://mainnet.nebulas.io';
     // static BlockchainUrl: string = 'https://testnet.nebulas.io';
+    static BlockchainUrl: string = 'http://localhost:8685';
     static WalletAddress: string;
 
     static CheckWalletInterval = 10;
@@ -39,7 +40,7 @@ export default class BlockchainMgr extends cc.Component {
     start() {
         this.checkWalletCountdown = 1;
         this.fetchMyDataInterval = 1;
-        this.fetchAllDataCountdown = 10;
+        this.fetchAllDataCountdown = 5;
     }
 
     //不断刷新当前钱包地址
@@ -158,7 +159,7 @@ export default class BlockchainMgr extends cc.Component {
                 HomeUI.Instance.edtBlockchainAddress.string = BlockchainMgr.WalletAddress ? BlockchainMgr.WalletAddress : '';
                 this.fetchAllDataCountdown = 0;
                 try {
-                    if (DataMgr.myData && DataMgr.myData.address != address &&
+                    if (DataMgr.myUser && DataMgr.myUser.address != address &&
                         (WorldUI.Instance.node.active || CityUI.Instance.node.active)) {
                         CvsMain.EnterUI(HomeUI);
                     }
@@ -173,8 +174,9 @@ export default class BlockchainMgr extends cc.Component {
         console.log('onGetMyData', resp);
         let user = JSON.parse(resp.result);
         if (user) {
-            DataMgr.myData = user;
+            DataMgr.myUser = user;
             user.ticks = MainCtrl.Ticks;
+            DataMgr.allUsers[user.address] = DataMgr.myUser;
         }
     }
 
@@ -184,11 +186,12 @@ export default class BlockchainMgr extends cc.Component {
         let allUserData = allData.users;
         let allIslandData = allData.islands;
 
-        DataMgr.othersData = {};
+        DataMgr.allUsers = {};
         allUserData.forEach(userJson => {
             if (userJson.address == BlockchainMgr.WalletAddress) {
+                DataMgr.allUsers[userJson.address] = DataMgr.myUser;
             } else {
-                DataMgr.othersData[userJson.address] = userJson;
+                DataMgr.allUsers[userJson.address] = userJson;
             }
         });
         allIslandData.forEach(islandJson => {
@@ -205,7 +208,7 @@ export default class BlockchainMgr extends cc.Component {
 
     callFunction(callFunction, callArgs, value, callback) {
         try {
-            value = Math.ceil(value * 1e10) / 1e10;
+            value = value ? Math.ceil(value * 1e10) / 1e10 : 0;
             console.log("调用钱包(", callFunction, callArgs, value);
             var nebPay = new NebPay();
             var callbackUrl = BlockchainMgr.BlockchainUrl;
@@ -225,131 +228,6 @@ export default class BlockchainMgr extends cc.Component {
             console.error(error);
         }
     }
-
-    claimNewUser() {
-        try {
-            const nickname = HomeUI.Instance.lblNickname.string;
-            const country = HomeUI.Instance.country;
-
-            var nebPay = new NebPay();
-            var serialNumber;
-            var callbackUrl = BlockchainMgr.BlockchainUrl;
-            var value = 0;
-            var to = ContractAddress;
-            var callFunction = 'claimNewUser';
-            console.log("调用钱包claim_new_user(", nickname, country);
-            var callArgs = '["' + nickname + '","' + country + '"]';
-            serialNumber = nebPay.call(to, value, callFunction, callArgs, {
-                qrcode: {
-                    showQRCode: false
-                },
-                goods: {
-                    name: "test",
-                    desc: "test goods"
-                },
-                callback: callbackUrl,
-                listener: this.claimNewUserCallback
-            });
-        } catch (error) {
-            console.error(error);
-        }
-    }
-    claimNewUserCallback(resp) {
-        console.log("claimNewUserCallback: ", resp);
-        if (resp.toString().substr(0, 5) != 'Error') {
-            DialogPanel.PopupWith2Buttons('星舰正在传送，请等候30秒',
-                '区块链交易已发送，等待出块\nTxHash:' + resp.txhash, '查看交易', () => {
-                    window.open('https://explorer.nebulas.io/#/tx/' + resp.txhash);
-                }, '确定', null);
-        } else {
-            ToastPanel.Toast('交易失败:' + resp);
-        }
-    }
-
-    move(x, y, succCallback: () => void) {
-        try {
-            var nebPay = new NebPay();
-            var serialNumber;
-            var callbackUrl = BlockchainMgr.BlockchainUrl;
-
-            var to = ContractAddress;
-            var value = 0;
-            var callFunction = 'move';
-            // let enc = BlockchainMgr.encrypto(score.toString(), EncKey, 25);
-            console.log("调用钱包move", x, y);
-            var callArgs = JSON.stringify([x, y]);
-            serialNumber = nebPay.call(to, value, callFunction, callArgs, {
-                qrcode: {
-                    showQRCode: false
-                },
-                goods: {
-                    name: "test",
-                    desc: "test goods"
-                },
-                callback: callbackUrl,
-                listener: this.moveCallback(succCallback)
-            });
-        } catch (error) {
-            console.error(error);
-        }
-    }
-    moveCallback(succCallback: () => void): (object) => void {
-        return (resp) => {
-            console.log("moveCallback: ", succCallback, resp);
-            if (resp.toString().substr(0, 5) != 'Error') {
-                DialogPanel.PopupWith2Buttons('反物质引擎开始预热，如果一切顺利，将在30秒内出发',
-                    '区块链交易已发送，等待出块\nTxHash:' + resp.txhash, '查看交易', () => {
-                        window.open('https://explorer.nebulas.io/#/tx/' + resp.txhash);
-                    }, '确定', null);
-
-                WorldUI.Instance.editSailDestinationMode = false;
-                if (succCallback) succCallback();
-            } else {
-                ToastPanel.Toast('交易失败:' + resp);
-            }
-        };
-    }
-
-
-    expand(i, j, valueNas: number) {
-        try {
-
-            var nebPay = new NebPay();
-            var serialNumber;
-            var callbackUrl = BlockchainMgr.BlockchainUrl;
-            var to = ContractAddress;
-            var value = Math.ceil(valueNas * 1e6) / 1e6;
-            var callFunction = 'expand';
-            var callArgs = JSON.stringify([i, j]);
-            console.log("调用钱包expand(" + i + ',' + j + ", valueNas", valueNas, 'value', value);
-            serialNumber = nebPay.call(to, value, callFunction, callArgs, {
-                qrcode: {
-                    showQRCode: false
-                },
-                goods: {
-                    name: "test",
-                    desc: "test goods"
-                },
-                callback: callbackUrl,
-                listener: this.expandCallback
-            });
-        } catch (error) {
-            console.error(error);
-        }
-    }
-    expandCallback(resp) {
-        console.log("expandCallback: ", resp);
-        if (resp.toString().substr(0, 5) != 'Error') {
-            DialogPanel.PopupWith2Buttons('扩建计划已启动，请稍候',
-                '区块链交易已发送，等待出块\nTxHash:' + resp.txhash, '查看交易', () => {
-                    window.open('https://explorer.nebulas.io/#/tx/' + resp.txhash);
-                }, '确定', null);
-        } else {
-            ToastPanel.Toast('交易失败:' + resp);
-        }
-    }
-
-
 
     attackIsland(islandId: number, tank, chopper, ship, succCallback: () => void) {
         try {
@@ -380,7 +258,7 @@ export default class BlockchainMgr extends cc.Component {
         return (resp) => {
             console.log("attackIslandCallback: ", succCallback, resp);
             if (resp.toString().substr(0, 5) != 'Error') {
-                AttackIslandPanel.Instance.close();
+                CvsMain.ClosePanel(AttackIslandPanel);
                 DialogPanel.PopupWith2Buttons('您的部队已出发',
                     '区块链交易已发送，等待出块\nTxHash:' + resp.txhash, '查看交易', () => {
                         window.open('https://explorer.nebulas.io/#/tx/' + resp.txhash);
@@ -422,7 +300,7 @@ export default class BlockchainMgr extends cc.Component {
     collectIslandMoneyCallback(resp) {
         console.log("collectIslandMoneyCallback: ", resp);
         if (resp.toString().substr(0, 5) != 'Error') {
-            AttackIslandPanel.Instance.close();
+            CvsMain.ClosePanel(AttackIslandPanel);            
             DialogPanel.PopupWith2Buttons('正在收取资源',
                 '区块链交易已发送，等待出块\nTxHash:' + resp.txhash, '查看交易', () => {
                     window.open('https://explorer.nebulas.io/#/tx/' + resp.txhash);

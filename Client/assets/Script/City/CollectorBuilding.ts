@@ -19,7 +19,7 @@ export default class CollectorBuilding extends Building {
 
     refresh() {
         let info = this.info;
-        const user = DataMgr.myData;
+        const user = DataMgr.myUser;
         const curTime = Number(new Date());
         const outid = info['Out0'];
         const outRate = DataMgr.getBuildingInfoItemWithLv(this.info.id, 'Out0Rate', this.data.lv);

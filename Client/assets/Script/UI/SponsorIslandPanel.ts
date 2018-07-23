@@ -34,6 +34,7 @@ export default class SponsorIslandPanel extends cc.Component {
     }
 
     close() {
-        this.node.active = false;
+        this.node.destroy();
+        SponsorIslandPanel.Instance = null;
     }
 }

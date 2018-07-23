@@ -37,6 +37,6 @@ export default class Island extends cc.Component {
     }
 
     onClick() {
-        WorldUI.Instance.selectIsland(this.node);
+        WorldUI.Instance.selectObject(this.node);
     }
 }

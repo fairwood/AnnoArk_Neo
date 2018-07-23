@@ -11,7 +11,7 @@ const { ccclass, property } = cc._decorator;
 @ccclass
 export default class ProductionPanel extends cc.Component {
     static Instance: ProductionPanel;
-    onLoad() { ProductionPanel.Instance = this; this.node.active = false; }
+    onLoad() { ProductionPanel.Instance = this; }
 
     @property(AsyncLoadSprite)
     sprPic: AsyncLoadSprite = null;
@@ -92,7 +92,7 @@ export default class ProductionPanel extends cc.Component {
 
         const in0Amt = DataMgr.getBuildingInfoItemWithLv(this.buildingData.id, 'In0Amt', this.buildingData.lv);
         const in1Amt = DataMgr.getBuildingInfoItemWithLv(this.buildingData.id, 'In1Amt', this.buildingData.lv);
-        const curCargoData = DataMgr.getUserCurrentCargoData(DataMgr.myData);
+        const curCargoData = DataMgr.getUserCurrentCargoData(DataMgr.myUser);
         if (!(in0Amt * count <= curCargoData['iron'])) {
             DialogPanel.PopupWith1Button('铁不足', '采集更多或者减少生产份数', '确定', null);
             return;
@@ -104,7 +104,7 @@ export default class ProductionPanel extends cc.Component {
 
 
         //check Warehouse
-        let user = DataMgr.myData;
+        let user = DataMgr.myUser;
         let info = DataMgr.getBuildingInfo(this.buildingData.id);
         let out0 = info['Out0'];
         ;
@@ -132,6 +132,7 @@ export default class ProductionPanel extends cc.Component {
     }
 
     close() {
-        this.node.active = false;
+        this.node.destroy();
+        ProductionPanel.Instance = null;
     }
 }

@@ -8,7 +8,7 @@ const { ccclass, property } = cc._decorator;
 @ccclass
 export default class AttackIslandPanel extends cc.Component {
     static Instance: AttackIslandPanel;
-    onLoad() { AttackIslandPanel.Instance = this; this.node.active = false; }
+    onLoad() { AttackIslandPanel.Instance = this; }
 
     @property(cc.Label)
     lblOccupant: cc.Label = null;
@@ -53,13 +53,13 @@ export default class AttackIslandPanel extends cc.Component {
     setAndRefresh(island: Island) {
         this.island = island;
 
-        let amIOccupant = DataMgr.myData.address == island.data.occupant;
-        let data = amIOccupant ? DataMgr.myData : DataMgr.othersData.find(d => d.address == island.data.occupant);
+        let amIOccupant = DataMgr.myUser.address == island.data.occupant;
+        let data = amIOccupant ? DataMgr.myUser : DataMgr.allUsers.find(d => d.address == island.data.occupant);
         this.lblOccupant.string = data ? data.nickname : island.data.occupant;
         this.lblConfirmButton.string = amIOccupant ? '追加' : '进攻';
 
         let powerAttenuRate = 0.05;
-        let hoursDelta = (Number(new Date()) - island.data.lastBattleTime) / (1000 * 3600);
+        let hoursDelta = (DataMgr.getBlockchainTimestamp() - island.data.lastBattleTime) / (1000 * 3600);
         let attenu = Math.exp(-powerAttenuRate * hoursDelta);
         this.lblDefTank.string = (island.data.tankPower * attenu).toFixed();
         this.lblDefChopper.string = (island.data.chopperPower * attenu).toFixed();
@@ -122,7 +122,7 @@ export default class AttackIslandPanel extends cc.Component {
     }
 
     refreshMethaneCost() {
-        const distance = this.island.node.position.sub(new cc.Vec2(DataMgr.myData.currentLocation.x, DataMgr.myData.currentLocation.y)).mag();
+        const distance = this.island.node.position.sub(new cc.Vec2(DataMgr.myUser.currentLocation.x, DataMgr.myUser.currentLocation.y)).mag();
         const costMethane = DataMgr.getMethaneCostOfAttack(distance,
             Math.round(this.SldAtkTank.progress * this.tankMax),
             Math.round(this.SldAtkChopper.progress * this.chopperMax),
@@ -135,7 +135,7 @@ export default class AttackIslandPanel extends cc.Component {
     onConfirmClick() {
         console.log('准备攻占资源岛', this.island);
 
-        const distance = this.island.node.position.sub(new cc.Vec2(DataMgr.myData.currentLocation.x, DataMgr.myData.currentLocation.y)).mag();
+        const distance = this.island.node.position.sub(new cc.Vec2(DataMgr.myUser.currentLocation.x, DataMgr.myUser.currentLocation.y)).mag();
         const costMethane = DataMgr.getMethaneCostOfAttack(distance,
             Math.round(this.SldAtkTank.progress * this.tankMax),
             Math.round(this.SldAtkChopper.progress * this.chopperMax),
@@ -161,6 +161,7 @@ export default class AttackIslandPanel extends cc.Component {
     }
 
     close() {
-        this.node.active = false;
+        this.node.destroy();
+        AttackIslandPanel.Instance = null;
     }
 }

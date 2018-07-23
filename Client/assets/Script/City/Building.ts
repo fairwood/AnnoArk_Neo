@@ -31,7 +31,7 @@ export default class Building extends cc.Component {
             try {
                 let self = this;
                 if (info.Pic) {
-                    cc.loader.loadRes("Building/" + info.Pic, cc.SpriteFrame, function (err, spriteFrame) {
+                    cc.loader.loadRes("buildings/" + info.Pic, cc.SpriteFrame, function (err, spriteFrame) {
                         if (!err) self.sprPic.spriteFrame = spriteFrame;
                     });
                 } else {

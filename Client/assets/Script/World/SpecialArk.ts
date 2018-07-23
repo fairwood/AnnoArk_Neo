@@ -26,12 +26,12 @@ export class SpecialArk extends cc.Component {
     }
 
     onClick() {
-        WorldUI.Instance.selectSpecialArk(this.node);
+        WorldUI.Instance.selectObject(this.node);
     }
 
     refreshZoom(zoomScale: number) {
         this.node.position = this.location.mul(zoomScale);
-        this.grpInfo.opacity = WorldUI.Instance.zoomScale > 0.08 || WorldUI.Instance.selectedObjectNode == this.node.parent ? 255 : 0;
+        this.grpInfo.opacity = WorldUI.Instance.zoomScale > 0.08 || WorldUI.Instance.focusedObjectNode == this.node.parent ? 255 : 0;
     }
 
     update(dt: number) {

@@ -16,15 +16,46 @@ export default class CvsMain extends cc.Component {
     fitter: cc.Node = null;
     @property(cc.Node)
     uiContainer: cc.Node = null;
+    @property(cc.Node)
+    panelContainer: cc.Node = null;
 
     static EnterUI(uiType: any) {
-        this.Instance.uiContainer.children.forEach((uiNode) => {
+        CvsMain.Instance.uiContainer.children.forEach((uiNode) => {
             if (uiNode.getComponent(uiType)) {
                 uiNode.active = true;
             } else {
                 uiNode.active = false;
             }
         })
+    }
+
+    static OpenPanel(panelType: any) {
+        try {
+            if (panelType.Instance) {
+                panelType.Instance.node.active = true;
+                return;
+            }
+            cc.loader.loadRes("Prefabs/Panels/" + panelType.name, cc.Prefab, function (err, prefab) {
+                if (!err) {
+                    let node: cc.Node = cc.instantiate(prefab);
+                    node.parent = CvsMain.Instance.panelContainer;
+                } else {
+                    console.error('err45', err);
+                }
+            });
+        } catch (error) {
+            console.error(error);
+        }
+    }
+    static ClosePanel(panelType: any) {
+        try {
+            if (panelType.Instance) {
+                panelType.Instance.node.destroy();
+                panelType.Instance = null;
+            }
+        } catch (error) {
+            console.error(error);
+        }
     }
 
     lastVisibleSize;

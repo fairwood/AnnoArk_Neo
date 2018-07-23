@@ -1,11 +1,13 @@
 import { BuildingInfo, DataMgr } from "../DataMgr";
+import CvsMain from "../CvsMain";
+import AttackIslandPanel from "./AttackIslandPanel";
 
 const { ccclass, property } = cc._decorator;
 
 @ccclass
 export default class BuildingInfoPanel extends cc.Component {
     static Instance: BuildingInfoPanel;
-    onLoad() { BuildingInfoPanel.Instance = this; this.node.active = false; }
+    onLoad() { BuildingInfoPanel.Instance = this; }
 
     @property(cc.Label)
     lblName: cc.Label = null;
@@ -66,11 +68,12 @@ export default class BuildingInfoPanel extends cc.Component {
         } else {
             info = idOrInfo;
         }
-        BuildingInfoPanel.Instance.node.active = true;
+        CvsMain.OpenPanel(BuildingInfoPanel);       
         BuildingInfoPanel.Instance.refresh(info);
     }
 
     close() {
-        this.node.active = false;
+        this.node.destroy();
+        BuildingInfoPanel.Instance = null;
     }
 }

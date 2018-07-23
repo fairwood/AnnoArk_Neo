@@ -1,19 +1,21 @@
 import CvsMain from "./CvsMain";
 import BaseUI from "./BaseUI";
-import MainCtrl from "./MainCtrl";
 import CityUI from "./CityUI";
-import ArkInWorld from "./ArkInWorld";
 import { DataMgr } from "./DataMgr";
 import BlockchainMgr from "./BlockchainMgr";
 import HomeUI from "./HomeUI";
 import Island from "./World/Island";
 import AttackIslandPanel from "./UI/AttackIslandPanel";
-import DialogPanel from "./DialogPanel";
 import CurrencyFormatter from "./Utils/CurrencyFormatter";
 import SponsorIslandPanel from "./UI/SponsorIslandPanel";
 import IslandInfoFrame from "./UI/IslandInfoFrame";
 import ToastPanel from "./UI/ToastPanel";
 import { SpecialArk } from "./World/SpecialArk";
+import Pirate from "./World/Pirate";
+import WatchPiratePanel from "./UI/WatchPiratePanel";
+import AttackPiratePanel from "./UI/AttackPiratePanel";
+import ArkInWorld from "./World/ArkInWorld";
+import DialogPanel from "./UI/DialogPanel";
 
 const { ccclass, property } = cc._decorator;
 
@@ -49,9 +51,14 @@ export default class WorldUI extends BaseUI {
     islandContainer: cc.Node = null;
 
     @property(cc.Node)
-    arkContainer: cc.Node = null;
+    cityContainer: cc.Node = null;
     @property(cc.Node)
-    arkTemplate: cc.Node = null;
+    cityTemplate: cc.Node = null;
+
+    @property(cc.Node)
+    pirateContainer: cc.Node = null;
+    @property(cc.Node)
+    pirateTemplate: cc.Node = null;
 
     @property(cc.Node)
     worldMap: cc.Node = null;
@@ -78,12 +85,31 @@ export default class WorldUI extends BaseUI {
     pressingZoomSlider = false;
     zoomScale: number = 0.1;
 
+    @property(cc.Toggle)
+    togOtherPlayer: cc.Toggle = null;
+    @property(cc.Toggle)
+    togPirate: cc.Toggle = null;
+    @property(cc.Toggle)
+    togDiamond: cc.Toggle = null;
+    @property(cc.Toggle)
+    togScenicSpot: cc.Toggle = null;
+    @property(cc.Toggle)
+    togNuke: cc.Toggle = null;
+
+    @property(cc.Node)
+    focusedInfoFrame: cc.Node = null;
+    @property(cc.Label)
+    lblSelectInfo0: cc.Label = null;
+    @property(cc.RichText)
+    lblSelectInfo1: cc.RichText = null;
+
+    refreshCountdown = 0;
 
     onEnable() {
         this.editSailDestinationMode = false;
-        this.selectedObjectNode = null;
+        this.focusedObjectNode = null;
 
-        if (!DataMgr.myData) return;
+        if (!DataMgr.myUser) return;
 
         try {
             this.refreshData();
@@ -91,38 +117,67 @@ export default class WorldUI extends BaseUI {
         } catch (e) {
             console.error(e);
         }
+
+        this.cityTemplate.active = false;
+        this.pirateTemplate.active = false;
     }
     onBtnBackClick() {
         CvsMain.EnterUI(HomeUI);
     }
 
     refreshData() {
-        //myData
-        let neededCount = Object.keys(DataMgr.othersData).length + 1;
-        for (let i = this.arkContainer.childrenCount; i < neededCount; i++) {
-            let arkNode = cc.instantiate(this.arkTemplate);
-            arkNode.parent = this.arkContainer;
+        //cities
+        // if (this.togOtherPlayer.isChecked) {
+        let neededCount = Object.keys(DataMgr.allUsers).length;
+        for (let i = this.cityContainer.childrenCount; i < neededCount; i++) {
+            let node = cc.instantiate(this.cityTemplate);
+            node.parent = this.cityContainer;
+            node.active = true;
+            node.on(cc.Node.EventType.TOUCH_MOVE, this.onPanPadTouchMove, this);
+            node.on(cc.Node.EventType.MOUSE_WHEEL, this.onMouseWheel, this);
         }
         let needToDestroys: cc.Node[] = [];
-        for (let i = neededCount; i < this.arkContainer.childrenCount; i++) {
-            needToDestroys.push(this.arkContainer.children[i]);
+        for (let i = neededCount; i < this.cityContainer.childrenCount; i++) {
+            needToDestroys.push(this.cityContainer.children[i]);
         }
         needToDestroys.forEach(c => c.destroy());
 
-        let arkIW = this.arkContainer.children[0].getComponent(ArkInWorld);
-        arkIW.setAndRefresh(DataMgr.myData, this.zoomScale);
         let i = 0;
-        for (let address in DataMgr.othersData) {
-            const data = DataMgr.othersData[address];
-            this.arkContainer.children[i + 1].getComponent(ArkInWorld).
-                setAndRefresh(data, this.zoomScale);
+        for (let address in DataMgr.allUsers) {
+            const data = DataMgr.allUsers[address];
+            this.cityContainer.children[i].getComponent(ArkInWorld).setAndRefresh(data, this.zoomScale);
             i++;
         }
+
+        //pirate
+        if (this.togPirate.isChecked) {
+            neededCount = DataMgr.totalPirateCnt;
+            for (let i = this.pirateContainer.childrenCount; i < neededCount; i++) {
+                let node = cc.instantiate(this.pirateTemplate);
+                node.parent = this.pirateContainer;
+                node.active = true;
+                node.on(cc.Node.EventType.TOUCH_MOVE, this.onPanPadTouchMove, this);
+                node.on(cc.Node.EventType.MOUSE_WHEEL, this.onMouseWheel, this);
+            }
+            needToDestroys = [];
+            for (let i = neededCount; i < this.pirateContainer.childrenCount; i++) {
+                needToDestroys.push(this.pirateContainer.children[i]);
+            }
+            needToDestroys.forEach(c => c.destroy());
+            for (let i = 0; i < neededCount; i++) {
+                this.pirateContainer.children[i].getComponent(Pirate).setAndRefresh(i, DataMgr.getPirateData(i), this.zoomScale);
+            }
+            this.pirateContainer.active = true;
+        } else {
+            this.pirateContainer.active = false;
+        }
+
+        this.refreshCountdown = 2;
     }
 
-    refreshMyArk() {
-        let arkIW = this.arkContainer.children[0].getComponent(ArkInWorld);
-        arkIW.setAndRefresh(DataMgr.myData, this.zoomScale);
+    refreshMyCity() {
+        let arkIW = this.cityContainer.children[0].getComponent(ArkInWorld);
+        arkIW.setAndRefresh(DataMgr.myUser, this.zoomScale);
     }
 
     refreshZoom() {
@@ -137,10 +192,16 @@ export default class WorldUI extends BaseUI {
     }
 
     update(dt: number) {
-        if (DataMgr.changed || MainCtrl.Ticks % 100 == 0) {
-            this.refreshData();
-            DataMgr.changed = false;
+
+        if (this.refreshCountdown < 0) {
+            try {
+                this.refreshData();
+            } catch (e) {
+                console.error(e);
+            }
         }
+        this.refreshCountdown -= dt;
+
         let prog = this.sldZoom.progress;
         if (!this.pressingZoomSlider) {
             if (prog > 0.5) {
@@ -162,21 +223,40 @@ export default class WorldUI extends BaseUI {
             this.refreshZoom();
         }
 
+        this.focusedInfoFrame.active = false;
+
         //选中对象模式
-        if (this.selectedObjectNode) {
+        if (this.focusedObjectNode) {
             this.selectFrame.active = true;
-            this.selectFrame.position = this.selectedObjectNode.position;
-            this.selectFrame.setContentSize(this.selectedObjectNode.width * 2, this.selectedObjectNode.height * 2);
-            let arkIW = this.selectedObjectNode.getComponent(ArkInWorld);
-            let speArk = this.selectedObjectNode.getComponent(SpecialArk);
-            let island = this.selectedObjectNode.getComponent(Island);
+            this.selectFrame.position = this.focusedObjectNode.position;
+            // this.selectFrame.setContentSize(this.focusedObjectNode.width, this.focusedObjectNode.height);
+            let arkIW = this.focusedObjectNode.getComponent(ArkInWorld);
+            let speArk = this.focusedObjectNode.getComponent(SpecialArk);
+            let pirate = this.focusedObjectNode.getComponent(Pirate);
+            let island = this.focusedObjectNode.getComponent(Island);
             if (arkIW) {
                 this.grpSelectSpeArk.active = false;
                 this.grpSelectObject.active = false;
+            } else if (pirate) {
+                this.grpSelectSpeArk.active = false;
+                this.grpSelectObject.active = false;
+                this.focusedInfoFrame.active = true;
+
+                let pos = DataMgr.getUserCurrentLocation(DataMgr.myUser);
+                let data = DataMgr.getPirateData(pirate.index);
+                // let distance = this.newDestination.sub(pos).mag();
+
+                this.focusedInfoFrame.position = this.focusedObjectNode.position;
+                this.lblSelectInfo0.string = `Lv ${pirate.data.lv + 1}`;
+                this.lblSelectInfo1.string =
+                    `坦克 ${pirate.data.army.tank ? pirate.data.army.tank.toFixed() : 0}
+无人机 ${pirate.data.army.tank ? pirate.data.army.tank.toFixed() : 0}
+炮舰 ${pirate.data.army.tank ? pirate.data.army.tank.toFixed() : 0}
+浮力模块 ${pirate.data.cargo.floatmod ? pirate.data.cargo.floatmod.toFixed() : 0}`;
             } else if (island) {
                 this.btnSponsorLink.getComponentInChildren(cc.Label).string =
                     island.data.sponsorName ? island.data.sponsorName : '无赞助商';
-                if (island.data.occupant && island.data.occupant == DataMgr.myData.address) {
+                if (island.data.occupant && island.data.occupant == DataMgr.myUser.address) {
                     this.lblAttackButton.string = '追加\n驻军';
                     const t0 = island.data.lastMineTime;
                     const t1 = Number(new Date());
@@ -184,7 +264,7 @@ export default class WorldUI extends BaseUI {
                     const r = island.data.miningRate;
                     const m = island.data.money * (1 - Math.exp(-r * t)) / 1e18;
                     this.btnCollectIsland.node.active = true;
-                    this.btnCollectIsland.getComponentInChildren(cc.Label).string = '收取\n' + CurrencyFormatter.formatNAS(m) + 'NAS';
+                    this.btnCollectIsland.getComponentInChildren(cc.Label).string = '收取\n' + CurrencyFormatter.formatNAS(m) + DataMgr.coinUnit;
                 } else {
                     this.lblAttackButton.string = '攻占';
                     this.btnCollectIsland.node.active = false;
@@ -205,13 +285,14 @@ export default class WorldUI extends BaseUI {
         if (this.editSailDestinationMode) {
             this.grpSail.active = true;
             this.sailDestinationIndicator.active = this.newDestination != null;
+            this.focusedInfoFrame.active = this.newDestination != null;
             if (this.newDestination) {
-                let pos = new cc.Vec2(DataMgr.myData.currentLocation.x, DataMgr.myData.currentLocation.y);
+                let pos = DataMgr.getUserCurrentLocation(DataMgr.myUser);
                 let distance = this.newDestination.sub(pos).mag();
-                let time = distance / DataMgr.getArkSpeedByTech(DataMgr.myTechData.find(d => d.id == 'arkspeed1011').finished);
-                let methane = DataMgr.MethaneCostPerKmPerSize * distance * DataMgr.myData.arkSize;
-                let str = `${distance.toFixed()}km\n${time.toFixed()}min\n${methane.toFixed()}甲烷`;
-                this.lblDestinationInfo.string = str;
+                let time = distance / DataMgr.cityMoveSpeed;
+                let ch4 = DataMgr.getSailEnergyCost(DataMgr.myUser, distance);
+                this.lblSelectInfo0.string = `${distance.toFixed()}km`;
+                this.lblSelectInfo1.string = `${time.toFixed()}min\n${ch4.toFixed()}甲烷`;
             }
         } else {
             this.grpSail.active = false;
@@ -224,8 +305,8 @@ export default class WorldUI extends BaseUI {
     }
 
     onCenterBtnClick() {
-        let data = DataMgr.myData;
-        let rawPos = data.currentLocation;
+        let user = DataMgr.myUser;
+        let rawPos = DataMgr.getUserCurrentLocation(user);
         rawPos.mulSelf(this.zoomScale);
         this.worldMap.position = rawPos.neg();
     }
@@ -242,9 +323,10 @@ export default class WorldUI extends BaseUI {
                 let touchPos = this.worldMap.convertTouchToNodeSpaceAR(event.touch);
                 this.newDestination = touchPos.mul(1 / this.zoomScale);
                 this.sailDestinationIndicator.position = this.newDestination.mul(this.zoomScale);
+                this.focusedInfoFrame.position = this.newDestination.mul(this.zoomScale);
             }
         }
-        if (this.selectedObjectNode) {
+        if (this.focusedObjectNode) {
             let curLoc = event.getLocation();
             let displacement = new cc.Vec2(curLoc.x, curLoc.y).sub(event.getStartLocation());
             if (displacement.mag() < 20) {
@@ -270,55 +352,50 @@ export default class WorldUI extends BaseUI {
     }
 
     //选中
-    @property(cc.Label)
-    lblAsideSelectFrame: cc.Label = null;
-    selectedObjectNode: cc.Node;
-    selectArk(arkNode: cc.Node) {
-        if (this.editSailDestinationMode) return;
-        this.selectedObjectNode = arkNode;
-    }
-    selectSpecialArk(arkNode: cc.Node) {
-        if (this.editSailDestinationMode) return;
-        this.selectedObjectNode = arkNode;
-    }
-    selectIsland(islandNode: cc.Node) {
-        if (this.editSailDestinationMode) return;
-        this.selectedObjectNode = islandNode;
+    focusedObjectNode: cc.Node;
+    selectObject(node: cc.Node) {
+        if (this.editSailDestinationMode) {
+            this.newDestination = node.position.mul(1 / this.zoomScale);
+            this.sailDestinationIndicator.position = this.newDestination.mul(this.zoomScale);
+            this.focusedInfoFrame.position = this.newDestination.mul(this.zoomScale);
+        } else {
+            this.focusedObjectNode = node;
+        }
     }
     cancelSelectObject() {
-        this.selectedObjectNode = null;
+        this.focusedObjectNode = null;
     }
     onSelectObjectInfoClick() {
-        let speArk = this.selectedObjectNode.getComponent(SpecialArk);
+        let speArk = this.focusedObjectNode.getComponent(SpecialArk);
         if (speArk) {
-            let pos = new cc.Vec2(DataMgr.myData.currentLocation.x, DataMgr.myData.currentLocation.y);
+            let pos = new cc.Vec2(DataMgr.myUser.currentLocation.x, DataMgr.myUser.currentLocation.y);
             let dist = pos.sub(speArk.location).mag();
             speArk.showInfo(dist);
         }
     }
     onBtnAttackIslandClick() {
-        const island = this.selectedObjectNode ? this.selectedObjectNode.getComponent(Island) : null;
+        const island = this.focusedObjectNode ? this.focusedObjectNode.getComponent(Island) : null;
         if (!island) return;
-        AttackIslandPanel.Instance.node.active = true;
+        CvsMain.OpenPanel(AttackIslandPanel);
         AttackIslandPanel.Instance.setAndRefresh(island);
     }
     onBtnCollectIslandClick() { //收获
-        const island = this.selectedObjectNode ? this.selectedObjectNode.getComponent(Island) : null;
+        const island = this.focusedObjectNode ? this.focusedObjectNode.getComponent(Island) : null;
         if (!island) return;
-        if (island.data.occupant == DataMgr.myData.address) {
+        if (island.data.occupant == DataMgr.myUser.address) {
             BlockchainMgr.Instance.collectIslandMoney(island.data.id);
         }
     }
     onIslandSponsorLinkClick() {
-        const island = this.selectedObjectNode ? this.selectedObjectNode.getComponent(Island) : null;
+        const island = this.focusedObjectNode ? this.focusedObjectNode.getComponent(Island) : null;
         if (island && island.data.sponsorLink) {
             window.open(island.data.sponsorLink);
         }
     }
     onIslandIWantSponsorClick() {
-        const island = this.selectedObjectNode ? this.selectedObjectNode.getComponent(Island) : null;
+        const island = this.focusedObjectNode ? this.focusedObjectNode.getComponent(Island) : null;
         if (island) {
-            SponsorIslandPanel.Instance.node.active = true;
+            CvsMain.OpenPanel(SponsorIslandPanel);
             SponsorIslandPanel.Instance.setData(island);
         }
     }
@@ -330,20 +407,15 @@ export default class WorldUI extends BaseUI {
     grpSail: cc.Node = null;
     @property(cc.Node)
     sailDestinationIndicator: cc.Node = null;
-    @property(cc.Label)
-    lblDestinationInfo: cc.Label = null;
     @property(cc.Node)
     btnCancelSail: cc.Node = null;
     @property(cc.Node)
     btnConfirmSail: cc.Node = null;
 
     onBtnSailClick() {
-        this.selectedObjectNode = null;
+        this.focusedObjectNode = null;
         this.editSailDestinationMode = true;
         this.newDestination = null;
-        const arkSpeedTechData = DataMgr.myTechData.find(d => d.id == 'arkspeed1011');
-        const myData = DataMgr.myData;
-        myData.speed = DataMgr.getArkSpeedByTech(arkSpeedTechData ? arkSpeedTechData.finished : false);
     }
     onCancelSailClick() {
         this.editSailDestinationMode = false;
@@ -354,39 +426,52 @@ export default class WorldUI extends BaseUI {
             ToastPanel.Toast('请先点击地图空白位置，选择目的地，再点√');
             return;
         }
-        const myData = DataMgr.myData;
-        if (myData.arkSize <= DataMgr.SmallArkSize) {
-            DialogPanel.PopupWith1Button('简陋方舟无法航行', '您的方舟是简陋方舟，没有扩建功能，请原地呆着吧。\n想要功能完整的方舟？请回到主界面领取标准方舟或大型方舟。需要安装星云钱包哦！', '知道了', null);
-            return;
-        }
-        let pos = new cc.Vec2(DataMgr.myData.currentLocation.x, DataMgr.myData.currentLocation.y);
-        let distance = this.newDestination.sub(pos).mag();
-        let needMethane = DataMgr.MethaneCostPerKmPerSize * distance * DataMgr.myData.arkSize;
-        let methaneData = DataMgr.myCargoData.find(d => d.id == 'methane74');
-        if (needMethane > methaneData.amount) {
-            DialogPanel.PopupWith1Button('燃料不足', '方舟引擎的唯一动力来源是甲烷。如果你想要环球旅行，多造一些[甲烷采集器]吧！', '知道了', null);
-            return;
+
+        //能量
+        let user = DataMgr.myUser;
+        let curLocation = DataMgr.getUserCurrentLocation(user);
+        let energyCost = DataMgr.getSailEnergyCost(user, this.newDestination.sub(curLocation).mag());
+        if (DataMgr.getUserCurrentCargoData(user)['ch4'] < energyCost) {
+            ToastPanel.Toast("甲烷燃料不足，强行发送交易可能失败");
         }
 
-        const arkSpeedTechData = DataMgr.myTechData.find(d => d.id == 'arkspeed1011');
-        myData.speed = DataMgr.getArkSpeedByTech(arkSpeedTechData ? arkSpeedTechData.finished : false);
-        let deltaData = {};
-        deltaData['nickname'] = myData.nickname;
-        deltaData['country'] = myData.country;
-        deltaData['arkSize'] = myData.arkSize;
-        deltaData['population'] = myData.population;
-        deltaData['speed'] = myData.speed;
-        deltaData['locationX'] = myData.currentLocation.x;
-        deltaData['locationY'] = myData.currentLocation.y;
-        deltaData['destinationX'] = this.newDestination.x;
-        deltaData['destinationY'] = this.newDestination.y;
+        console.log('ConfirmMove', this.newDestination);
+        BlockchainMgr.Instance.callFunction('move', [this.newDestination.x, this.newDestination.y], 0, (resp) => {
+            console.log("moveCallback: ", resp);
+            if (resp.toString().substr(0, 5) != 'Error') {
+                DialogPanel.PopupWith2Buttons('引擎开始预热，如果一切顺利，将在30秒内出发',
+                    '区块链交易已发送，等待出块\nTxHash:' + resp.txhash, '查看交易', () => {
+                        window.open('https://explorer.nebulas.io/#/tx/' + resp.txhash);
+                    }, '确定', null);
 
-        console.log('ConfirmSail', deltaData);
-        BlockchainMgr.Instance.setSail(deltaData, () => {
-            methaneData.amount = Math.max(0, methaneData.amount - needMethane);
+                WorldUI.Instance.editSailDestinationMode = false;
+            } else {
+                ToastPanel.Toast('交易失败:' + resp);
+            }
         });
     }
 
+    //海盗
+    onWatchPirateClick() {
+        if (this.focusedObjectNode) {
+            const pirate = this.focusedObjectNode.getComponent(Pirate);
+            if (pirate) {
+                DataMgr.fetchPirateDataFromBlockchain(pirate.index);
+                CvsMain.OpenPanel(WatchPiratePanel);
+                WatchPiratePanel.Instance.setAndRefresh(DataMgr.getPirateData(pirate.index));
+            }
+        }
+    }
+    onAttackPirateClick() {
+        if (this.focusedObjectNode) {
+            const pirate = this.focusedObjectNode.getComponent(Pirate);
+            if (pirate) {
+                DataMgr.fetchPirateDataFromBlockchain(pirate.index);
+                CvsMain.OpenPanel(AttackPiratePanel);
+                AttackPiratePanel.Instance.setAndRefresh(DataMgr.getPirateData(pirate.index));
+            }
+        }
+    }
 
     //岛屿初始化
     @property(cc.Node)
@@ -400,5 +485,10 @@ export default class WorldUI extends BaseUI {
             frm.active = true;
         });
         this.islandInfoFrameTemplate.active = false;
+    }
+
+    //信息过滤
+    onFilterToggle() {
+        this.refreshData();
     }
 }
