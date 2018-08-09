@@ -253,7 +253,7 @@ namespace AnnoArk
 
                 return r;
 			}
-			else{   //Will elabrate for other cases
+			else{
 				return false;
 			}
 
