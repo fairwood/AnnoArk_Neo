@@ -88,11 +88,3 @@
 玩家给英雄出价，价高者将获得英雄的帮助，在每场战斗中获得属性加成。
 
 英雄可以随时转卖。
-
-# 联系方式
-
-公众号：**史教授** ![史教授](https://github.com/fairwood/AnnoArk_Neo/blob/master/Marketing/mp_qrcode.jpg)
-
-QQ群：813540914（[点击加群](//shang.qq.com/wpa/qunwpa?idkey=08ac4d0f3638707ff6c6d8cbc358e7ea837f1fcb427f4242e062e6f90d0d88e8)）
-
-个人微信：**stv1024** ![stv1024](https://github.com/fairwood/AnnoArk_Neo/blob/master/Marketing/me_qrcode.jpg)
