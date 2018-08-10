@@ -77,7 +77,7 @@ namespace Contract
 
         }
 
-        public static string name()
+        public static string Name()
         {
             return "AnnoArkContract";
         }
@@ -107,6 +107,17 @@ namespace Contract
             } else if (Runtime.Trigger == TriggerType.Application) {
                 //必须在入口函数取得callscript，调用脚本的函数，也会导致执行栈变化，再取callscript就晚了
                 var callscript = ExecutionEngine.CallingScriptHash;
+
+                if (operation == "name")
+                {
+                    return Name();
+                }
+
+                if (operation == "version")
+                {
+                    return Version();
+                }
+
                 if (operation == "userRegister")
                 {
 
