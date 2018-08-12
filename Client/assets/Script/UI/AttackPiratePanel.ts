@@ -1,8 +1,7 @@
 import { DataMgr } from "../DataMgr";
-import Island from "../World/Island";
 import BlockchainMgr from "../BlockchainMgr";
-import DialogPanel from "../DialogPanel";
 import ToastPanel from "./ToastPanel";
+import DialogPanel from "./DialogPanel";
 
 const { ccclass, property } = cc._decorator;
 
@@ -56,9 +55,9 @@ export default class AttackPiratePanel extends cc.Component {
         this.lblTitle.string = '海盗 #' + pirateData.index.toString();
         this.lblLv.string = pirateData.lv.toString();
 
-        this.lblDefTank.string = (pirateData.army.tank).toFixed();
-        this.lblDefChopper.string = (pirateData.army.chopper).toFixed();
-        this.lblDefShip.string = (pirateData.army.ship).toFixed();
+        this.lblDefTank.string = (pirateData.army.tank || 0).toFixed();
+        this.lblDefChopper.string = (pirateData.army.chopper || 0).toFixed();
+        this.lblDefShip.string = (pirateData.army.ship || 0).toFixed();
 
         this.SldAtkTank.progress = 0;
         this.SldAtkChopper.progress = 0;
@@ -66,7 +65,7 @@ export default class AttackPiratePanel extends cc.Component {
         this.onSliderChange(null, 'Tank');
         this.onSliderChange(null, 'Chopper');
         this.onSliderChange(null, 'Ship');
-        this.refreshch4Cost();
+        this.refreshDistance();
     }
 
     onSliderChange(event, cargoName: string) {
@@ -81,7 +80,7 @@ export default class AttackPiratePanel extends cc.Component {
                 this.edtAtkShip.string = (this.SldAtkShip.progress * this.shipMax).toFixed();
                 break;
         }
-        this.refreshch4Cost();
+        this.refreshDistance();
     }
 
     onEditBoxChange(event, cargoName: string) {
@@ -105,11 +104,11 @@ export default class AttackPiratePanel extends cc.Component {
                 this.SldAtkShip.progress = count / this.shipMax;
                 break;
         }
-        this.refreshch4Cost();
+        this.refreshDistance();
     }
 
     update(dt) {
-        let cargoData = DataMgr.myUser.cargoData;
+        let cargoData = DataMgr.getUserCurrentCargoData(DataMgr.myUser);
         this.tankMax = Math.floor(cargoData['tank']);
         this.lblAtkTankMax.string = '/' + this.tankMax.toFixed();
         this.chopperMax = Math.floor(cargoData['chopper']);
@@ -118,7 +117,7 @@ export default class AttackPiratePanel extends cc.Component {
         this.lblAtkShipMax.string = '/' + this.shipMax.toFixed();
     }
 
-    refreshch4Cost() {
+    refreshDistance() {
         const pirateLocation = new cc.Vec2(this.pirateData.x, this.pirateData.y);
         const distance = pirateLocation.sub(DataMgr.getUserCurrentLocation(DataMgr.myUser)).mag();
         this.lblDistance.string = distance.toFixed() + 'km';
@@ -132,7 +131,7 @@ export default class AttackPiratePanel extends cc.Component {
         const distance = pirateLocation.sub(myPos).mag();
 
         if (distance > 300) {
-            DialogPanel.PopupWith2Buttons('警告：可能失败的区块链调用', '距离300km之内才能攻打海盗，强行发送交易可能会失败。', '确定', null, '强行发送', this.confirmAttack);
+            DialogPanel.PopupWith2Buttons('警告：可能失败的区块链调用', '距离300km之内才能攻打海盗，强行发送交易可能会失败。', '确定', null, '强行发送', this.confirmAttack.bind(this));
             return;
         }
 

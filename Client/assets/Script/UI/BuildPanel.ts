@@ -1,8 +1,8 @@
 import BuildingButton from "./BuildingButton";
-import { DataMgr } from "../DataMgr";
+import { DataMgr, BuildingInfo } from "../DataMgr";
 import CityUI from "../CityUI";
 
-const {ccclass, property} = cc._decorator;
+const { ccclass, property } = cc._decorator;
 
 @ccclass
 export default class BuildPanel extends cc.Component {
@@ -15,7 +15,8 @@ export default class BuildPanel extends cc.Component {
     buttonTemplate: cc.Node = null;
 
     start() {
-        DataMgr.BuildingConfig.forEach(buildingInfo => {
+        let configList = DataMgr.BuildingConfig.sort((a, b) => a.Order - b.Order);
+        configList.forEach(buildingInfo => {
             if (buildingInfo.CanBuild !== '1') {
                 return;
             }
@@ -28,8 +29,8 @@ export default class BuildPanel extends cc.Component {
         this.buttonTemplate.active = false;
     }
 
-    onEnable () {
-        
+    onEnable() {
+
     }
 
     refresh() {

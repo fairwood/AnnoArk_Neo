@@ -18,16 +18,22 @@ export default class Pirate extends cc.Component {
 
     setAndRefresh(index, data, zoomScale: number) {
         this.index = index;
-        this.data = data;
         // this.sprArk.node.setContentSize(data.arkSize, data.arkSize);
         this.lblName.string = '海盗';
-        this.lblLv.string = (data.lv + 1).toString();
+        this.refreshData(data);
         this.refreshZoom(zoomScale);
     }
 
+    refreshData(data) {
+        this.data = data;
+        this.lblLv.string = data.lv.toString();
+    }
+
     refreshZoom(zoomScale: number) {
-        let curLoc = new cc.Vec2(this.data.x, this.data.y);
-        this.node.position = curLoc.mul(zoomScale);
+        if (this.data) {
+            let curLoc = new cc.Vec2(this.data.x, this.data.y);
+            this.node.position = curLoc.mul(zoomScale);
+        }
     }
 
     update(dt: number) {
@@ -36,6 +42,6 @@ export default class Pirate extends cc.Component {
 
     onClick() {
         WorldUI.Instance.selectObject(this.node);
-        DataMgr.fetchPirateDataFromBlockchain(this.index);
+        DataMgr.fetchPirateDataFromBlockchain(this.index); //仅仅为下一步做准备
     }
 }

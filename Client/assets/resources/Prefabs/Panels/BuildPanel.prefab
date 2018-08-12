@@ -517,7 +517,7 @@
     "_N$string": "燃料收集器",
     "_N$horizontalAlign": 0,
     "_N$verticalAlign": 1,
-    "_N$fontFamily": "Arial",
+    "_N$fontFamily": "Microsoft Yahei",
     "_N$overflow": 0
   },
   {
@@ -566,8 +566,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 102,
-      "height": 24
+      "width": 43,
+      "height": 48
     },
     "_rotationX": 0,
     "_rotationY": 0,
@@ -601,10 +601,10 @@
     "_N$file": null,
     "_isSystemFontUsed": true,
     "_spacingX": 0,
-    "_N$string": "原料：20铁",
+    "_N$string": "20铁\n20铁",
     "_N$horizontalAlign": 1,
     "_N$verticalAlign": 0,
-    "_N$fontFamily": "Arial",
+    "_N$fontFamily": "Microsoft Yahei",
     "_N$overflow": 0
   },
   {
@@ -672,8 +672,8 @@
     "_scaleY": 1,
     "_position": {
       "__type__": "cc.Vec2",
-      "x": 19.6,
-      "y": -67.6
+      "x": 0,
+      "y": -70
     },
     "_skewX": 0,
     "_skewY": 0,
@@ -755,7 +755,7 @@
     "_N$string": "建造",
     "_N$horizontalAlign": 1,
     "_N$verticalAlign": 1,
-    "_N$fontFamily": "Arial",
+    "_N$fontFamily": "Microsoft Yahei",
     "_N$overflow": 0
   },
   {
@@ -778,7 +778,7 @@
     },
     "_enabled": true,
     "_spriteFrame": {
-      "__uuid__": "d1c3b4bb-26be-4495-9ea3-9a2525bf9522"
+      "__uuid__": "f9dce3ce-baf5-4a5d-acde-0f64a5bc61a3"
     },
     "_type": 1,
     "_sizeMode": 0,
@@ -842,7 +842,7 @@
       "a": 255
     },
     "_N$normalSprite": {
-      "__uuid__": "d1c3b4bb-26be-4495-9ea3-9a2525bf9522"
+      "__uuid__": "f9dce3ce-baf5-4a5d-acde-0f64a5bc61a3"
     },
     "_N$pressedSprite": {
       "__uuid__": "e9ec654c-97a2-4787-9325-e6a10375219a"
@@ -886,7 +886,7 @@
     "_left": 0,
     "_right": 0,
     "_top": 0,
-    "_bottom": 2.4000000000000057,
+    "_bottom": 0,
     "_verticalCenter": 0,
     "_horizontalCenter": 0,
     "_isAbsLeft": true,
@@ -1668,7 +1668,7 @@
     },
     "_children": [],
     "_tag": -1,
-    "_active": true,
+    "_active": false,
     "_components": [
       {
         "__id__": 50
@@ -1694,7 +1694,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 96,
+      "width": 135,
       "height": 50
     },
     "_rotationX": 0,
@@ -1704,7 +1704,7 @@
     "_position": {
       "__type__": "cc.Vec2",
       "x": 0,
-      "y": -32.8
+      "y": 10.9
     },
     "_skewX": 0,
     "_skewY": 0,
@@ -1729,10 +1729,10 @@
     "_N$file": null,
     "_isSystemFontUsed": true,
     "_spacingX": 0,
-    "_N$string": "0.23NAS",
+    "_N$string": ">8 浮力模块",
     "_N$horizontalAlign": 1,
     "_N$verticalAlign": 1,
-    "_N$fontFamily": "Arial",
+    "_N$fontFamily": "Microsoft Yahei",
     "_N$overflow": 0
   },
   {
@@ -1781,7 +1781,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 96,
+      "width": 48,
       "height": 50
     },
     "_rotationX": 0,
@@ -1790,7 +1790,7 @@
     "_scaleY": 1,
     "_position": {
       "__type__": "cc.Vec2",
-      "x": 0,
+      "x": -9.1,
       "y": -78.6
     },
     "_skewX": 0,
@@ -1816,10 +1816,10 @@
     "_N$file": null,
     "_isSystemFontUsed": true,
     "_spacingX": 0,
-    "_N$string": "扩建舱位",
+    "_N$string": "扩建",
     "_N$horizontalAlign": 1,
     "_N$verticalAlign": 1,
-    "_N$fontFamily": "Arial",
+    "_N$fontFamily": "Microsoft Yahei",
     "_N$overflow": 0
   },
   {

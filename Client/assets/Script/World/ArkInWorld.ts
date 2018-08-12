@@ -1,6 +1,6 @@
-import { DataMgr, UserData } from "./DataMgr";
-import WorldUI from "./WorldUI";
-import { FlagMgr } from "./UI/FlagMgr";
+import { UserData, DataMgr } from "../DataMgr";
+import WorldUI from "../WorldUI";
+import { FlagMgr } from "../UI/FlagMgr";
 
 const { ccclass, property } = cc._decorator;
 
@@ -15,6 +15,10 @@ export default class ArkInWorld extends cc.Component {
     lblName: cc.Label = null;
     @property(cc.Node)
     grpInfo: cc.Node = null;
+    @property(cc.SpriteFrame)
+    spfIconMe: cc.SpriteFrame = null;
+    @property(cc.SpriteFrame)
+    spfIconOther: cc.SpriteFrame = null;
 
     data: UserData;
 
@@ -28,7 +32,7 @@ export default class ArkInWorld extends cc.Component {
 
     setAndRefresh(data: UserData, zoomScale: number) {
         this.data = data;
-        // this.sprArk.node.setContentSize(data.arkSize, data.arkSize);
+        this.sprIcon.spriteFrame = this.data.address == DataMgr.myUser.address ? this.spfIconMe : this.spfIconOther;
         this.lblName.string = data.nickname;
         this.refreshZoom(zoomScale);
 

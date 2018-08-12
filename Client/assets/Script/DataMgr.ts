@@ -1,4 +1,3 @@
-import WorldUI from "./WorldUI";
 import MathUtil from "./Utils/MathUtil";
 import BlockchainMgr from "./BlockchainMgr";
 
@@ -42,6 +41,13 @@ export class DataMgr {
         return Number(new Date()) + this.timestampOffset;
     }
 
+    static getUserLevel(user) {
+        return Math.floor(Math.pow(user.expandCnt, 0.5)) + 1;
+    }
+    static getUserHull(user) {
+        let curCityHull = Math.min(1, 1 - (user.healMaxTimestamp - DataMgr.getBlockchainTimestamp()) / 3600e3 * this.damagePerAttackCity);
+        return curCityHull;
+    }
     static getUserCurrentLocation(user) {
         let lastLocation = new cc.Vec2(user.locationData.lastLocationX, user.locationData.lastLocationY);
         if (user.locationData.destinationX == null || user.locationData.destinationY == null) return lastLocation;
@@ -69,10 +75,10 @@ export class DataMgr {
         let curMoney = data.money * (isMining ? Math.exp(-data.miningRate * (Number(new Date()) - data.lastMineTime) / (1000 * 3600)) : 1);
         return curMoney;
     }
-    static getBuildingInfo(id: string) {
+    static getBuildingInfo(id: string): BuildingInfo {
         return DataMgr.BuildingConfig.find(info => info.id == id);
     }
-    static getCargoInfo(id: string) {
+    static getCargoInfo(id: string): CargoInfo {
         return DataMgr.CargoConfig.find(info => info.id == id);
     }
     static getCityIJExpanded(user, i, j) {
@@ -82,6 +88,20 @@ export class DataMgr {
         return user.expandMap[i + ',' + j]
     }
 
+    static fetchUserDataFromBlockchain(userAddress, callback?: (data) => void) {
+        BlockchainMgr.Instance.getFunction('getUser', [userAddress], (resp) => {
+            console.log('getUser resp:', resp);
+            try {
+                let data = JSON.parse(resp.result);
+                if (data) {
+                    this.allUsers[userAddress] = data;
+                    if (callback) callback(data);
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        });
+    }
     private static getPirateInfo(index) {
         if (index >= this.totalPirateCnt) {
             throw new Error("index must < totalPirateCnt." + index + '<' + this.totalPirateCnt);
@@ -95,7 +115,7 @@ export class DataMgr {
         }
         let seed = curPeriodTimestamp.toString() + index.toString();
         let random = this.APHash1(seed);//0~1  
-        let lv = Math.floor(Math.pow(random, 3) * 15);//显示时+1
+        let lv = Math.floor(Math.pow(random, 3) * 15) + 1;
         let cargoMainFactor = lv * lv;//物资与lv^2成正比
         let armyMainFactor = lv * lv * lv;//部队数量与lv^3成正比
 
@@ -134,7 +154,7 @@ export class DataMgr {
         }
         for (let key in armyFactors) {
             let c = (this.APHash1(seed + key));
-            army[key] = Math.round(this.pirateArmyC0 * armyMainFactor * c * cargoFactors[key]);
+            army[key] = Math.round(this.pirateArmyC0 * armyMainFactor * c * armyFactors[key]);
         }
         pirateInfo.army = army;
         return pirateInfo;
@@ -163,13 +183,14 @@ export class DataMgr {
         }
         return pirate;
     }
-    static fetchPirateDataFromBlockchain(pirateIndex) {
+    static fetchPirateDataFromBlockchain(pirateIndex, callback?: (data) => void) {
         BlockchainMgr.Instance.getFunction('getPirateInfo', [pirateIndex], (resp) => {
             console.log('getPirateInfo resp:', resp);
             try {
                 let data = JSON.parse(resp.result);
                 if (data) {
                     this.allPirates[pirateIndex] = data;
+                    if (callback) callback(DataMgr.getPirateData(pirateIndex));
                 }
             } catch (error) {
                 console.error(error);
@@ -200,6 +221,7 @@ export class DataMgr {
         let value = DataMgr.getBuildingInfo(buildingId)[itemName];
         let multi = DataMgr.getBuildingInfo('_upgradeRate')[itemName];
         if (!value) return 0;
+        value = Number(value);
         if (!isNaN(multi) && multi > 0) {
             value = value * Math.pow(multi, lv);
         }
@@ -306,6 +328,7 @@ export class UserData {
 }
 export class BuildingInfo {
     id: string;
+    Order: number;
     Name: string;
     CanBuild;
     Type: string;
@@ -342,21 +365,20 @@ export class MineInfo {
     points: cc.Vec2[];
 }
 export class IslandData {
-    location: cc.Vec2;
-    id: number;
-    occupant: string; //当前占领者addr
-    tankPower: number = 0;
-    chopperPower: number = 0;
-    shipPower: number = 0;
+    index: number;
+    x: number;
+    y: number;
+    occupant: string; //当前占领者address
+    lastMineTime: number; // 上次开始挖矿的时间
+    army: { tank: 0, chopper: 0, ship: 0 };
     money: number = 0; //里面还有多少nas
-    sponsor: string;//赞助商账号
+    sponsor: string;//赞助商address
     sponsorName: string = '';//赞助商名称
     sponsorLink: string;//赞助商链接
-    // minMiningSpeed: number = 0.04167; //NAS/h 挖矿速度
+    sponsorPic: string;//赞助商图片地址
     miningRate: number = 0.02;///h 挖矿百分比速度，实际挖矿速度=max(minMiningSpeed, money*miningRate）
-    balanceMap: number = 0; //当前占领者可收获的NAS
-    lastMineTime: number; //当前数据的时间戳
-    lastBattleTime: number;
+    mineBalance: number = 0; //当前占领者可收获的NAS
+    lastCalcTime: number;
 }
 export class IJ {
     i: number = 0;

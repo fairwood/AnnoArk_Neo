@@ -1,0 +1,30 @@
+{
+  "ver": "1.0.0",
+  "uuid": "21fc0a2e-86f9-4f4f-a3e2-af0c8090a6e7",
+  "type": "sprite",
+  "wrapMode": "clamp",
+  "filterMode": "bilinear",
+  "subMetas": {
+    "icon_tixian": {
+      "ver": "1.0.3",
+      "uuid": "e2b99815-763f-4f77-9cea-5f4629cd2d5e",
+      "rawTextureUuid": "21fc0a2e-86f9-4f4f-a3e2-af0c8090a6e7",
+      "trimType": "auto",
+      "trimThreshold": 1,
+      "rotated": false,
+      "offsetX": 0,
+      "offsetY": 0,
+      "trimX": 0,
+      "trimY": 4,
+      "width": 24,
+      "height": 16,
+      "rawWidth": 24,
+      "rawHeight": 24,
+      "borderTop": 0,
+      "borderBottom": 0,
+      "borderLeft": 0,
+      "borderRight": 0,
+      "subMetas": {}
+    }
+  }
+}

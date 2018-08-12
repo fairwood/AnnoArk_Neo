@@ -52,6 +52,10 @@ export default class CityUI extends BaseUI {
     @property(cc.Node)
     city: cc.Node = null;
 
+    @property(cc.Label)
+    lblLv: cc.Label = null;
+    @property(cc.Label)
+    lblHull: cc.Label = null;
     @property(cc.Node)
     cargoLabelContainer: cc.Node = null;
     @property(cc.Node)
@@ -60,10 +64,14 @@ export default class CityUI extends BaseUI {
 
     @property(cc.Node)
     panPad: cc.Node = null;
+    @property(cc.Node)
+    focusFrame: cc.Node = null;
     @property(cc.Slider)
     sldZoom: cc.Slider = null;
     pressingZoomSlider = false;
     zoomScale: number = 1;
+
+
 
     start() {
         DataMgr.CargoConfig.forEach(cargoInfo => {
@@ -93,6 +101,7 @@ export default class CityUI extends BaseUI {
             this.refreshAll();
         }
 
+        //货物数据
         let cargoData = DataMgr.getUserCurrentCargoData(DataMgr.myUser);
         for (let i = 0; i < DataMgr.CargoConfig.length; i++) {
             const cargoInfo = DataMgr.CargoConfig[i];
@@ -106,7 +115,14 @@ export default class CityUI extends BaseUI {
             }
             this.cargoLabels[cargoInfo.id].string = str;
         }
+        this.lblLv.string = 'Level ' + DataMgr.getUserLevel(DataMgr.myUser);
+        let hull = DataMgr.getUserHull(DataMgr.myUser);
+        let str = '完整度 ' + (hull * 100).toFixed() + '%';
+        if (hull < 1) str += `(+${(DataMgr.damagePerAttackCity * 100).toFixed()}%/h)`;
+        this.lblHull.string = str;
+        this.lblHull.node.color = hull > 0.3 ? cc.Color.WHITE : cc.Color.RED;
 
+        //放大缩小
         let prog = this.sldZoom.progress;
         if (!this.pressingZoomSlider) {
             if (prog > 0.5) {
@@ -128,15 +144,15 @@ export default class CityUI extends BaseUI {
             this.refreshZoom();
         }
 
+        //蓝图模式
         if (this.currentHoldingBlueprint) {
             this.blueprint.active = true;
             this.blueprint.position = new cc.Vec2(this.currentBlueprintIJ.i * 100, this.currentBlueprintIJ.j * 100);
-            this.lblExpandCost.node.active = false;
             let ableToBuild = true;
             this.grpBuild.active = true;
 
-            this.blueprint.setContentSize(100, 100);
-            this.blueprintIndicator.node.setContentSize(100, 100);
+            // this.blueprint.setContentSize(100, 100);
+            // this.blueprintIndicator.node.setContentSize(100, 100);
             let key = this.currentBlueprintIJ.i + ',' + this.currentBlueprintIJ.j;
             if (DataMgr.myUser.buildingMap[key]) {
                 ableToBuild = false;
@@ -147,16 +163,21 @@ export default class CityUI extends BaseUI {
             this.blueprintIndicator.node.color = ableToBuild ? this.canBuildColor : this.cannotBuildColor;
         } else if (this.expandModeContainer.active) {
             this.grpBuild.active = true;
-            this.lblExpandCost.node.active = true;
         } else {
             this.blueprint.active = false;
             this.grpBuild.active = false;
         }
+        this.lblExpandCost.node.active = this.expandModeContainer.active;
+
+        //选中状态
         if (this.selectedBuilding) {
             this.grpBuildingInfo.active = true;
             this.nodProduceButton.active = (this.selectedBuilding.getComponent(ProducerBuilding) != null);
+            this.focusFrame.position = this.selectedBuilding.node.position;
+            this.focusFrame.active = true;
         } else {
             this.grpBuildingInfo.active = false;
+            this.focusFrame.active = false;
         }
     }
 
@@ -194,7 +215,7 @@ export default class CityUI extends BaseUI {
         //building
         const buildingMap = DataMgr.myUser.buildingMap;
         for (let key in buildingMap) {
-            buildingMap[key].tmpDirty = true;
+            if (buildingMap[key]) buildingMap[key].tmpDirty = true;
         }
         this.buildingContainer.children.forEach(bdgNode => {
             let bdg = bdgNode.getComponent(Building);
@@ -212,19 +233,20 @@ export default class CityUI extends BaseUI {
             delete bdgOnChain.tmpDirty;
         });
         for (let key in buildingMap) {
-            if (buildingMap[key].tmpDirty) {
+            if (buildingMap[key] && buildingMap[key].tmpDirty) {
                 const data = buildingMap[key];
                 let info = DataMgr.getBuildingInfo(data.id);
                 let prefabName = info['Type'] + 'Template';
-                let buildingNode = cc.instantiate(this[prefabName]);
-                buildingNode.parent = this.buildingContainer;
-                buildingNode.name = key;
-                let building = buildingNode.getComponent(Building);
-                building.setInfo(info, data);
+                let bdgNode = cc.instantiate(this[prefabName]);
+                bdgNode.parent = this.buildingContainer;
+                bdgNode.name = key;
+                let bgd = bdgNode.getComponent(Building);
                 let ij = JSON.parse('[' + key + ']');
-                buildingNode.position = new cc.Vec2(ij[0] * 100, ij[1] * 100);
-                buildingNode.active = true;
-                console.log('createbd', key, data);
+                bgd.setInfo(info, data);
+                bgd.setIJ(ij[0], ij[1]);
+                bdgNode.position = new cc.Vec2(ij[0] * 100, ij[1] * 100);
+                bdgNode.active = true;
+                // console.log('createbd', key, data);
                 delete buildingMap[key].tmpDirty;
             }
         }
@@ -306,19 +328,37 @@ export default class CityUI extends BaseUI {
     currentBlueprintIJ: IJ;
     enterBuildMode(buildingInfo: BuildingInfo) {
         this.currentHoldingBlueprint = buildingInfo;
-        this.currentBlueprintIJ = IJ.ZERO;
+        //寻找最近的空位
+        const findEmptyIJ = () => {
+            for (let i = 1; ; i++) {
+                for (let j = 1; ; j++) {
+                    for (let fi = -1; fi <= 1; fi += 2)
+                        for (let fj = -1; fj <= 1; fj += 2) {
+                            let key = (i * fi).toFixed() + ',' + (j * fj).toFixed();
+                            if (!DataMgr.myUser.buildingMap[key]) {
+                                let ij = new IJ();
+                                ij.i = i * fi;
+                                ij.j = j * fj;
+                                return ij;
+                            }
+                        }
+                }
+            }
+        };
+        this.currentBlueprintIJ = findEmptyIJ();
     }
     dragBlueprint(event: cc.Event.EventTouch) {
         let now = event.getLocation();
-        let touchPosInArkMap = this.cityMap.convertToNodeSpaceAR(now);
-        this.currentBlueprintIJ.i = Math.round(touchPosInArkMap.x / 100);
-        this.currentBlueprintIJ.j = Math.round(touchPosInArkMap.y / 100);
+        let touchPosInCityMap = this.cityMap.convertToNodeSpaceAR(now);
+        this.currentBlueprintIJ.i = Math.round(touchPosInCityMap.x / 100);
+        this.currentBlueprintIJ.j = Math.round(touchPosInCityMap.y / 100);
     }
     @property(cc.Node)
     grpBuild: cc.Node = null;
     @property(cc.Button)
     btnConfirmBuild: cc.Button = null;
     onBtnConfirmBuildClick() {
+        console.log('onBtnConfirmBuildClick', this.currentHoldingBlueprint, this.currentHoldingBlueprint instanceof BuildingInfo)
         if (this.expandModeContainer.active) {
             let expandModeContainer = this.expandModeContainer.getComponent(ExpandModeContainer);
             //确定扩建
@@ -326,6 +366,7 @@ export default class CityUI extends BaseUI {
             let cost = expandModeContainer.getCost();
             let floatmod: number = (DataMgr.getUserCurrentCargoData(DataMgr.myUser)['floatmod'] || 0);
             let enough = floatmod >= cost;
+            let self = this;
             const callBlockchain = () => BlockchainMgr.Instance.callFunction('expand', [ijList], 0,
                 (resp) => {
                     if (resp.toString().substr(0, 5) != 'Error') {
@@ -333,7 +374,7 @@ export default class CityUI extends BaseUI {
                             '区块链交易已发送，等待出块\nTxHash:' + resp.txhash, '查看交易', () => {
                                 window.open('https://explorer.nebulas.io/#/tx/' + resp.txhash);
                             }, '确定', null);
-                        this.expandModeContainer.active = false;
+                        self.expandModeContainer.active = false;
                     } else {
                         ToastPanel.Toast('交易失败:' + resp);
                     }
@@ -344,12 +385,28 @@ export default class CityUI extends BaseUI {
             } else {
                 DialogPanel.PopupWith2Buttons('浮力模块存货不足', '强行发送区块链交易可能失败', '确定', null, '强行发送', callBlockchain);
             }
-        } else {
+        } else if (this.currentHoldingBlueprint && this.currentHoldingBlueprint.id) {
+            let money = this.currentHoldingBlueprint.Money;
             //确定建造
-            BlockchainMgr.Instance.callFunction('build', [this.currentBlueprintIJ.i, this.currentBlueprintIJ.j, this.currentHoldingBlueprint.id], 0,
+            BlockchainMgr.Instance.callFunction('build', [this.currentBlueprintIJ.i, this.currentBlueprintIJ.j, this.currentHoldingBlueprint.id], money,
                 (resp) => {
                     if (resp.toString().substr(0, 5) != 'Error') {
                         DialogPanel.PopupWith2Buttons('正在递交建造计划',
+                            '区块链交易已发送，等待出块\nTxHash:' + resp.txhash, '查看交易', () => {
+                                window.open('https://explorer.nebulas.io/#/tx/' + resp.txhash);
+                            }, '确定', null);
+                        this.currentHoldingBlueprint = null;
+                    } else {
+                        ToastPanel.Toast('交易失败:' + resp);
+                    }
+                }
+            );
+        } else if (this.currentHoldingBlueprint instanceof IJ) {
+            //确定移动建筑
+            BlockchainMgr.Instance.callFunction('moveBuilding', [this.currentHoldingBlueprint.i, this.currentHoldingBlueprint.j, this.currentBlueprintIJ.i, this.currentBlueprintIJ.j], 0,
+                (resp) => {
+                    if (resp.toString().substr(0, 5) != 'Error') {
+                        DialogPanel.PopupWith2Buttons('正在递交搬迁计划',
                             '区块链交易已发送，等待出块\nTxHash:' + resp.txhash, '查看交易', () => {
                                 window.open('https://explorer.nebulas.io/#/tx/' + resp.txhash);
                             }, '确定', null);
@@ -379,75 +436,74 @@ export default class CityUI extends BaseUI {
     deselectBuilding() {
         this.selectedBuilding = null;
     }
+    onMoveBuildingClick() {
+        if (this.selectedBuilding) {
+            let ij = this.selectedBuilding.ij;
+            this.currentHoldingBlueprint = ij;
+            this.currentBlueprintIJ = new IJ();
+            this.currentBlueprintIJ.i = ij.i;
+            this.currentBlueprintIJ.j = ij.j;
+            this.deselectBuilding();
+        }
+    }
     onDemolishBtnClick() {
         let self = CityUI.Instance;
         if (this.selectedBuilding) {
-            DialogPanel.PopupWith2Buttons('确定拆除建筑吗',
-                self.selectedBuilding.info.Name
-                + '\n可回收部分建筑材料',
-                '取消', null,
-                '拆除', () => {
-                    let ij = JSON.parse('[' + this.selectedBuilding.node.name + ']');
-                    BlockchainMgr.Instance.callFunction('demolish', ij, 0,
-                        (resp) => {
-                            if (resp.toString().substr(0, 5) != 'Error') {
-                                DialogPanel.PopupWith2Buttons('正在递交拆除计划',
-                                    '区块链交易已发送，等待出块\nTxHash:' + resp.txhash, '查看交易', () => {
-                                        window.open('https://explorer.nebulas.io/#/tx/' + resp.txhash);
-                                    }, '确定', null);
-                            } else {
-                                ToastPanel.Toast('交易失败:' + resp);
+            if (this.selectedBuilding.info.id === 'hq') {
+                DialogPanel.PopupWith1Button('确定拆除总部吗？', '这玩意儿可不能拆！', '不拆不拆', null);
+            } else {
+                DialogPanel.PopupWith2Buttons('确定拆除建筑吗',
+                    self.selectedBuilding.info.Name
+                    + '\n可回收部分建筑材料',
+                    '取消', null,
+                    '拆除', () => {
+                        let ij = JSON.parse('[' + this.selectedBuilding.node.name + ']');
+                        BlockchainMgr.Instance.callFunction('demolish', ij, 0,
+                            (resp) => {
+                                if (resp.toString().substr(0, 5) != 'Error') {
+                                    DialogPanel.PopupWith2Buttons('正在递交拆除计划',
+                                        '区块链交易已发送，等待出块\nTxHash:' + resp.txhash, '查看交易', () => {
+                                            window.open('https://explorer.nebulas.io/#/tx/' + resp.txhash);
+                                        }, '确定', null);
+                                } else {
+                                    ToastPanel.Toast('交易失败:' + resp);
+                                }
                             }
-                        }
-                    );
-                    self.deselectBuilding();
-                });
+                        );
+                        self.deselectBuilding();
+                    });
+            }
         }
     }
     onBuildingInfoBtnClick() {
         if (this.selectedBuilding) {
-            BuildingInfoPanel.Show(this.selectedBuilding.info);
+            let ij = this.selectedBuilding.ij;
+            BuildingInfoPanel.ShowBuildingData(ij, this.selectedBuilding.data);
             this.deselectBuilding();
         }
     }
 
     //升级
     onUpgradeBtnClick() {
-        let self = CityUI.Instance;
         if (this.selectedBuilding) {
-            let ironCost = DataMgr.getBuildingInfoItemWithLv(this.selectedBuilding.data.id, 'IronCost', this.selectedBuilding.data.lv + 1);
-            DialogPanel.PopupWith2Buttons('升级' + self.selectedBuilding.info.Name + "到Lv" + (this.selectedBuilding.data.lv + 2),
-                "需要" + ironCost + '铁',
-                '取消', null,
-                '升级', () => {
-                    if (DataMgr.getUserCurrentCargoData(DataMgr.myUser)['iron'] < ironCost) {
-                        ToastPanel.Toast("铁不足");
-                        return;
-                    }
-                    let ij = JSON.parse('[' + this.selectedBuilding.node.name + ']');
-                    BlockchainMgr.Instance.callFunction('upgradeBuilding', ij, 0,
-                        (resp) => {
-                            if (resp.toString().substr(0, 5) != 'Error') {
-                                DialogPanel.PopupWith2Buttons('正在递交升级计划',
-                                    '区块链交易已发送，等待出块\nTxHash:' + resp.txhash, '查看交易', () => {
-                                        window.open('https://explorer.nebulas.io/#/tx/' + resp.txhash);
-                                    }, '确定', null);
-                            } else {
-                                ToastPanel.Toast('交易失败:' + resp);
-                            }
-                        }
-                    );
-                    self.deselectBuilding();
-                });
+            let ij = this.selectedBuilding.ij;
+            BuildingInfoPanel.ShowBuildingData(ij, this.selectedBuilding.data);
+            this.deselectBuilding();
         }
     }
     //生产
     onProduceBtnClick() {
-        CvsMain.OpenPanel(ProductionPanel);
-        ProductionPanel.Instance.setAndRefresh(this.selectedBuilding, DataMgr.myUser.buildingMap[this.selectedBuilding.node.name]);
+        CvsMain.OpenPanel(ProductionPanel, () => ProductionPanel.Instance.setAndRefresh(this.selectedBuilding, DataMgr.myUser.buildingMap[this.selectedBuilding.node.name]));
     }
 
     onTradeBtnClick() {
         // TransferPanel.Instance.node.active = true;
+    }
+
+    //信息过滤器
+    @property(cc.Toggle)
+    togShowBuildingInfo: cc.Toggle = null;
+    onFilterToggle() {
+        this.refreshAll();
     }
 }

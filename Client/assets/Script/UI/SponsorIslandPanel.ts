@@ -8,7 +8,7 @@ const { ccclass, property } = cc._decorator;
 @ccclass
 export default class SponsorIslandPanel extends cc.Component {
     static Instance: SponsorIslandPanel;
-    onLoad() { SponsorIslandPanel.Instance = this; this.node.active = false; }
+    onLoad() { SponsorIslandPanel.Instance = this; }
 
     @property(cc.EditBox)
     edtName: cc.EditBox = null;
@@ -30,7 +30,7 @@ export default class SponsorIslandPanel extends cc.Component {
         }
     }
     onConfirmClick() {
-        BlockchainMgr.Instance.sponsor(this.island.data.id, this.edtName.string, this.edtLink.string, parseFloat(this.edtValue.string));
+        BlockchainMgr.Instance.sponsor(this.island.data.index, this.edtName.string, this.edtLink.string, parseFloat(this.edtValue.string));
     }
 
     close() {

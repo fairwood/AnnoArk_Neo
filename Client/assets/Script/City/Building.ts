@@ -17,11 +17,18 @@ export default class Building extends cc.Component {
     lblName: cc.Label = null;
     @property(cc.Label)
     lblLv: cc.Label = null;
+    @property(cc.Node)
+    frmInfo: cc.Node = null;
 
     onClick() {
         CityUI.Instance.selectBuilding(this);
     }
 
+    setIJ(i, j) {
+        this.ij = new IJ();
+        this.ij.i = i;
+        this.ij.j = j;
+    }
     setInfo(info: BuildingInfo, data: BuildingData) {
         this.info = info;
         this.data = data;
@@ -42,8 +49,10 @@ export default class Building extends cc.Component {
                 this.sprPic.spriteFrame = null;
             }
         }
+        this.frmInfo.active = CityUI.Instance.togShowBuildingInfo.isChecked;
         this.refresh();
     }
 
-    refresh() { }
+    refresh() {
+    }
 }

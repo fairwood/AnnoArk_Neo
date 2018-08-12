@@ -36,9 +36,10 @@ export default class WatchPiratePanel extends cc.Component {
         this.pirateData = pirateData;
         this.lblTitle.string = '海盗 #' + pirateData.index.toString();
         this.lblLv.string = pirateData.lv.toString();
-        this.lblDefTank.string = (pirateData.army.tank).toFixed();
-        this.lblDefChopper.string = (pirateData.army.chopper).toFixed();
-        this.lblDefShip.string = (pirateData.army.ship).toFixed();
+        console.log('sAR', pirateData)
+        this.lblDefTank.string = (pirateData.army.tank || 0).toFixed();
+        this.lblDefChopper.string = (pirateData.army.chopper || 0).toFixed();
+        this.lblDefShip.string = (pirateData.army.ship || 0).toFixed();
 
         let cargo = pirateData.cargo;
         let i = 0;
@@ -62,9 +63,12 @@ export default class WatchPiratePanel extends cc.Component {
     }
 
     onAttackClick() {
-        DataMgr.fetchPirateDataFromBlockchain(this.pirateData.index);
-        CvsMain.OpenPanel(AttackPiratePanel);
-        AttackPiratePanel.Instance.setAndRefresh(DataMgr.getPirateData(this.pirateData.index));
+        const refresh = (data) => {
+            AttackPiratePanel.Instance.setAndRefresh(data);
+        };
+        CvsMain.OpenPanel(AttackPiratePanel, () => refresh(DataMgr.getPirateData(this.pirateData.index)));
+        DataMgr.fetchPirateDataFromBlockchain(this.pirateData.index, refresh);
+        this.close();
     }
 
     close() {

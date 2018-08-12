@@ -1,0 +1,30 @@
+{
+  "ver": "1.0.0",
+  "uuid": "be7ee832-134f-4fe8-849b-4d8d5b370db5",
+  "type": "sprite",
+  "wrapMode": "clamp",
+  "filterMode": "bilinear",
+  "subMetas": {
+    "icon_chaichu": {
+      "ver": "1.0.3",
+      "uuid": "2e00870a-70bf-48a0-a0b8-1f226dc51f7a",
+      "rawTextureUuid": "be7ee832-134f-4fe8-849b-4d8d5b370db5",
+      "trimType": "auto",
+      "trimThreshold": 1,
+      "rotated": false,
+      "offsetX": 0,
+      "offsetY": 0,
+      "trimX": 0,
+      "trimY": 3,
+      "width": 24,
+      "height": 18,
+      "rawWidth": 24,
+      "rawHeight": 24,
+      "borderTop": 0,
+      "borderBottom": 0,
+      "borderLeft": 0,
+      "borderRight": 0,
+      "subMetas": {}
+    }
+  }
+}

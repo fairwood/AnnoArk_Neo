@@ -5,6 +5,10 @@ export class FlagMgr {
 
     static setFlag(spr: cc.Sprite, country: string) {
         try {
+            if (!country) {
+                spr.spriteFrame = null;
+                return;
+            }
             if (FlagMgr.flagNames.find(f => f == country)) {
                 cc.loader.loadRes("flags/" + country, cc.SpriteFrame, function (err, spriteFrame) {
                     if (!err) spr.spriteFrame = spriteFrame;

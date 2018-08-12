@@ -4,7 +4,6 @@ import ToastPanel from "./UI/ToastPanel";
 import CityUI from "./CityUI";
 import CvsMain from "./CvsMain";
 import HomeUI from "./HomeUI";
-import AttackIslandPanel from "./UI/AttackIslandPanel";
 import MainCtrl from "./MainCtrl";
 import DialogPanel from "./UI/DialogPanel";
 
@@ -27,6 +26,12 @@ export default class BlockchainMgr extends cc.Component {
     // static BlockchainUrl: string = 'https://mainnet.nebulas.io';
     // static BlockchainUrl: string = 'https://testnet.nebulas.io';
     static BlockchainUrl: string = 'http://localhost:8685';
+    static getExplorerOfAccount(account: string) {
+        return `https://explorer.nebulas.io/#/address/${account}`;
+    }
+    static getExplorerOfTx(txHash: string) {
+        return `https://explorer.nebulas.io/#/tx/${txHash}`;
+    }
     static WalletAddress: string;
 
     static CheckWalletInterval = 10;
@@ -40,7 +45,8 @@ export default class BlockchainMgr extends cc.Component {
     start() {
         this.checkWalletCountdown = 1;
         this.fetchMyDataInterval = 1;
-        this.fetchAllDataCountdown = 5;
+        this.fetchAllDataCountdown = 2;
+
     }
 
     //不断刷新当前钱包地址
@@ -195,14 +201,7 @@ export default class BlockchainMgr extends cc.Component {
             }
         });
         allIslandData.forEach(islandJson => {
-            let localData: IslandData = DataMgr.allIslandData[islandJson.id];
-            if (localData) {
-                for (let key in islandJson) {
-                    localData[key] = islandJson[key];
-                }
-            } else {
-                console.error('从区块链获取到未知id的island:', islandJson);
-            }
+            DataMgr.allIslandData[islandJson.index] = islandJson;
         });
     }
 
@@ -226,87 +225,6 @@ export default class BlockchainMgr extends cc.Component {
             });
         } catch (error) {
             console.error(error);
-        }
-    }
-
-    attackIsland(islandId: number, tank, chopper, ship, succCallback: () => void) {
-        try {
-            var nebPay = new NebPay();
-            var serialNumber;
-            var callbackUrl = BlockchainMgr.BlockchainUrl;
-            var to = ContractAddress;
-            var value = 0
-            var callFunction = 'attackIsland';
-            console.log("调用钱包attack_island(", islandId, tank, chopper, ship);
-            var callArgs = JSON.stringify([islandId, tank, chopper, ship]);
-            serialNumber = nebPay.call(to, value, callFunction, callArgs, {
-                qrcode: {
-                    showQRCode: false
-                },
-                goods: {
-                    name: "test",
-                    desc: "test goods"
-                },
-                callback: callbackUrl,
-                listener: this.attackIslandCallback(succCallback)
-            });
-        } catch (error) {
-            console.error(error);
-        }
-    }
-    attackIslandCallback(succCallback: () => void): (object) => void {
-        return (resp) => {
-            console.log("attackIslandCallback: ", succCallback, resp);
-            if (resp.toString().substr(0, 5) != 'Error') {
-                CvsMain.ClosePanel(AttackIslandPanel);
-                DialogPanel.PopupWith2Buttons('您的部队已出发',
-                    '区块链交易已发送，等待出块\nTxHash:' + resp.txhash, '查看交易', () => {
-                        window.open('https://explorer.nebulas.io/#/tx/' + resp.txhash);
-                    }, '确定', null);
-
-                WorldUI.Instance.editSailDestinationMode = false;
-                if (succCallback) succCallback();
-            } else {
-                DialogPanel.PopupWith1Button('区块链交易失败', resp, '确定', null);
-            }
-        };
-    }
-
-    collectIslandMoney(islandId: number) {
-        try {
-            var nebPay = new NebPay();
-            var serialNumber;
-            var callbackUrl = BlockchainMgr.BlockchainUrl;
-            var to = ContractAddress;
-            var value = 0
-            var callFunction = 'collectIslandMoney';
-            console.log("调用钱包collectIslandMoney(", islandId, );
-            var callArgs = JSON.stringify([islandId]);
-            serialNumber = nebPay.call(to, value, callFunction, callArgs, {
-                qrcode: {
-                    showQRCode: false
-                },
-                goods: {
-                    name: "test",
-                    desc: "test goods"
-                },
-                callback: callbackUrl,
-                listener: this.collectIslandMoneyCallback
-            });
-        } catch (error) {
-            console.error(error);
-        }
-    }
-    collectIslandMoneyCallback(resp) {
-        console.log("collectIslandMoneyCallback: ", resp);
-        if (resp.toString().substr(0, 5) != 'Error') {
-            CvsMain.ClosePanel(AttackIslandPanel);            
-            DialogPanel.PopupWith2Buttons('正在收取资源',
-                '区块链交易已发送，等待出块\nTxHash:' + resp.txhash, '查看交易', () => {
-                    window.open('https://explorer.nebulas.io/#/tx/' + resp.txhash);
-                }, '确定', null);
-        } else {
-            DialogPanel.PopupWith1Button('区块链交易失败', resp, '确定', null);
         }
     }
 

@@ -3,6 +3,8 @@ import ToastPanel from "./ToastPanel";
 import HomeUI from "../HomeUI";
 import { FlagMgr } from "./FlagMgr";
 import CvsMain from "../CvsMain";
+import DialogPanel from "./DialogPanel";
+import BlockchainMgr from "../BlockchainMgr";
 
 const { ccclass, property } = cc._decorator;
 
@@ -66,6 +68,26 @@ export default class EditNicknamePanel extends cc.Component {
         HomeUI.Instance.lblNickname.string = this.edtNickname.string;
         HomeUI.Instance.country = this.selectedCountry;
         ToastPanel.Toast('昵称、国家设置成功');
+        
+        if (DataMgr.myUser) {
+            BlockchainMgr.Instance.callFunction('editUser', [HomeUI.Instance.lblNickname.string, HomeUI.Instance.country], 0,
+                (resp) => {
+                    if (resp.toString().substr(0, 5) != 'Error') {
+                        DialogPanel.PopupWith2Buttons('正在修改昵称',
+                            '区块链交易已发送，等待出块\nTxHash:' + resp.txhash, '查看交易', () => {
+                                window.open('https://explorer.nebulas.io/#/tx/' + resp.txhash);
+                            }, '确定', null);
+                    } else {
+                        ToastPanel.Toast('交易失败:' + resp);
+                    }
+                }
+            );
+        } else {
+            if (HomeUI.Instance.node.active) {
+                HomeUI.Instance.onClaim();
+            }
+        }
+
         this.close();
     }
 

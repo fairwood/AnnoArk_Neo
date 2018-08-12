@@ -29,7 +29,7 @@ export default class CvsMain extends cc.Component {
         })
     }
 
-    static OpenPanel(panelType: any) {
+    static OpenPanel(panelType: any, callback?: () => void) {
         try {
             if (panelType.Instance) {
                 panelType.Instance.node.active = true;
@@ -39,6 +39,7 @@ export default class CvsMain extends cc.Component {
                 if (!err) {
                     let node: cc.Node = cc.instantiate(prefab);
                     node.parent = CvsMain.Instance.panelContainer;
+                    if (callback) callback();
                 } else {
                     console.error('err45', err);
                 }
