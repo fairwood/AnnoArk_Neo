@@ -1,5 +1,5 @@
 import WorldUI from "../WorldUI";
-import DialogPanel from "../DialogPanel";
+import DialogPanel from "../UI/DialogPanel";
 
 const { ccclass, property } = cc._decorator;
 

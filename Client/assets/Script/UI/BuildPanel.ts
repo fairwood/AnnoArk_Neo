@@ -1,5 +1,5 @@
 import BuildingButton from "./BuildingButton";
-import { DataMgr, BuildingInfo } from "../DataMgr";
+import { DataMgr } from "../DataMgr";
 import CityUI from "../CityUI";
 
 const { ccclass, property } = cc._decorator;

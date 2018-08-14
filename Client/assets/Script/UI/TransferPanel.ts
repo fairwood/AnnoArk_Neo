@@ -1,9 +1,6 @@
 import BlockchainMgr from "../BlockchainMgr";
-import Island from "../World/Island";
-import CurrencyFormatter from "../Utils/CurrencyFormatter";
-import { DataMgr } from "../DataMgr";
-import DialogPanel from "../DialogPanel";
 import ToastPanel from "./ToastPanel";
+import DialogPanel from "./DialogPanel";
 
 const { ccclass, property } = cc._decorator;
 
