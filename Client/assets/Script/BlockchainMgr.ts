@@ -55,11 +55,6 @@ export default class BlockchainMgr extends cc.Component {
 
     //不断刷新当前钱包地址
     update(dt: number) {
-        try {
-            Neb; NebPay;
-        } catch (error) {
-            return;
-        }
 
         this.checkWalletCountdown -= dt;
         this.fetchMyDataInterval -= dt;
@@ -71,6 +66,11 @@ export default class BlockchainMgr extends cc.Component {
                 HomeUI.Instance.edtBlockchainAddress.string = BlockchainMgr.WalletAddress ? BlockchainMgr.WalletAddress : '';
             } else {
                 try {
+                    try {
+                        Neb; NebPay;
+                    } catch (error) {
+                        return;
+                    }
                     let self = this;
                     let neb = new Neb();
                     neb.setRequest(new HttpRequest(BlockchainMgr.BlockchainUrl));
@@ -91,8 +91,6 @@ export default class BlockchainMgr extends cc.Component {
         }
         if (this.fetchMyDataInterval <= 0 && BlockchainMgr.WalletAddress) {
 
-            let neb = new Neb();
-            neb.setRequest(new HttpRequest(BlockchainMgr.BlockchainUrl));
 
             let from = BlockchainMgr.WalletAddress;
             var value = "0";
@@ -109,6 +107,8 @@ export default class BlockchainMgr extends cc.Component {
             if (BlockchainMgr.UseFake) {
                 self.onGetMyData(FakeBC.instance.callFunction(from, callFunction, contract.args, 0));
             } else {
+                let neb = new Neb();
+                neb.setRequest(new HttpRequest(BlockchainMgr.BlockchainUrl));
                 neb.api.call(from, ContractAddress, value, nonce, gas_price, gas_limit, contract).then(
                     self.onGetMyData
                 ).catch(function (err) {
@@ -120,10 +120,8 @@ export default class BlockchainMgr extends cc.Component {
         if (this.fetchAllDataCountdown <= 0) {
             // const func = 'get_map_info';
 
-            let neb = new Neb();
-            neb.setRequest(new HttpRequest(BlockchainMgr.BlockchainUrl));
 
-            let from = BlockchainMgr.WalletAddress ? BlockchainMgr.WalletAddress : Account.NewAccount().getAddressString();
+            let from = BlockchainMgr.WalletAddress ? BlockchainMgr.WalletAddress : 'sdfsdfsfsdf';
             var value = "0";
             var nonce = "0"
             var gas_price = "1000000"
@@ -138,6 +136,8 @@ export default class BlockchainMgr extends cc.Component {
             if (BlockchainMgr.UseFake) {
                 self.onGetAllMapData(FakeBC.instance.callFunction(from, callFunction, contract.args, 0));
             } else {
+                let neb = new Neb();
+                neb.setRequest(new HttpRequest(BlockchainMgr.BlockchainUrl));
                 neb.api.call(from, ContractAddress, value, nonce, gas_price, gas_limit, contract).then(
                     self.onGetAllMapData
                 ).catch(function (err) {
@@ -151,10 +151,7 @@ export default class BlockchainMgr extends cc.Component {
 
     getFunction(functionName: string, callArgs, callback) {
         try {
-            let neb = new Neb();
-            neb.setRequest(new HttpRequest(BlockchainMgr.BlockchainUrl));
-
-            let from = BlockchainMgr.WalletAddress ? BlockchainMgr.WalletAddress : Account.NewAccount().getAddressString();
+            let from = BlockchainMgr.WalletAddress ? BlockchainMgr.WalletAddress : 'sdfsfsdfs';
             var value = "0";
             var nonce = "0"
             var gas_price = "1000000"
@@ -167,6 +164,9 @@ export default class BlockchainMgr extends cc.Component {
             if (BlockchainMgr.UseFake) {
                 callback(FakeBC.instance.callFunction(from, callFunction, contract.args, value));
             } else {
+                let neb = new Neb();
+                neb.setRequest(new HttpRequest(BlockchainMgr.BlockchainUrl));
+    
                 neb.api.call(from, ContractAddress, value, nonce, gas_price, gas_limit, contract).then(
                     callback
                 ).catch(function (err) {
@@ -231,13 +231,13 @@ export default class BlockchainMgr extends cc.Component {
         try {
             value = value ? Math.ceil(value * 1e10) / 1e10 : 0;
             console.log("调用钱包(", callFunction, callArgs, value);
-            var nebPay = new NebPay();
             var callbackUrl = BlockchainMgr.BlockchainUrl;
             var to = ContractAddress;
 
             if (BlockchainMgr.UseFake) {
                 callback(FakeBC.instance.callFunction(BlockchainMgr.WalletAddress, callFunction, JSON.stringify(callArgs), value));
             } else {
+                var nebPay = new NebPay();
                 let serialNumber = nebPay.call(to, value, callFunction, JSON.stringify(callArgs), {
                     qrcode: {
                         showQRCode: false

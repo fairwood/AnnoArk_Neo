@@ -40,7 +40,7 @@ export default class HomeUI extends BaseUI {
     refreshCountdown = 0;
 
     start() {
-        ToastPanel.Toast('正在读取您的钱包信息，请稍候');
+        // ToastPanel.Toast('正在读取您的钱包信息，请稍候');
         if(BlackCat && BlackCat.SDK){
             BlackCat.SDK.login(function (res) {
                 console.log('login callback',res);

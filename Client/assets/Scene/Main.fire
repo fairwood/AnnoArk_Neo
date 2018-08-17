@@ -6882,10 +6882,8 @@
     "node": {
       "__id__": 177
     },
-    "_enabled": false,
-    "_spriteFrame": {
-      "__uuid__": "1f6028cc-8878-4163-a2ce-ecbb1e63897d"
-    },
+    "_enabled": true,
+    "_spriteFrame": null,
     "_type": 0,
     "_sizeMode": 0,
     "_fillType": 0,
@@ -6908,7 +6906,7 @@
     "node": {
       "__id__": 177
     },
-    "_enabled": false,
+    "_enabled": true,
     "delay": 0,
     "path": "UI/earth"
   },

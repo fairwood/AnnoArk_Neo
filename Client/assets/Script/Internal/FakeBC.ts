@@ -19,7 +19,6 @@ export default class FakeBC {
 
     callFunction(from, func, args, value) {
         try {
-            console.log('BC callFunction(', from, func, args, value);
             let argList = JSON.parse(args);
             this.Blockchain.transaction = {};
             this.Blockchain.transaction.value = value;
@@ -1521,7 +1520,7 @@ export default class FakeBC {
                 return this.allUserList;
             },
             getUser: function (address) {
-                console.log(this.allUsers);
+                console.log('BC.getUser', this.allUsers);
                 return this.allUsers.get(address);
             },
             getPirateInfo: function (index) {
