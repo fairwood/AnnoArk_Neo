@@ -3,11 +3,10 @@
 <head>
   <meta charset="utf-8">
 
-  <title>Cocos Creator | <%=project%></title>
+  <title>AnnoArk Neo</title>
 
   <!--http://www.html5rocks.com/en/mobile/mobifying/-->
-  <meta name="viewport"
-        content="width=device-width,user-scalable=no,initial-scale=1, minimum-scale=1,maximum-scale=1"/>
+  <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1, minimum-scale=1,maximum-scale=1"/>
 
   <!--https://developer.apple.com/library/safari/documentation/AppleApplications/Reference/SafariHTMLRef/Articles/MetaTags.html-->
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -53,8 +52,61 @@
     var NVM = require("nebulas").NVM;
     window.console = oriConsole;
   </script>
+  <link rel="stylesheet" href="res/css/panel.css" type="text/css" />
+  <script src="lib/rollup/aes.js"></script>
+  <script src="lib/component/aes.js"></script>
+  <script src="lib/component/mode-ecb.js"></script>
+  <script src="lib/component/pad-nopadding.js"></script>
+  <script src="lib/scrypt.js"></script>
+  <script src="lib/jsrsasign.js"></script>
+  <script src="lib/neo-ts.js"></script>
+  <script src="lib/qr-code-with-logo.browser.min.js"></script>
+  <script src="lib/code.js"></script>
 </head>
 <body>
+    <script>
+        var listener = function(data){
+        // 回调处理，data是JSON格式String
+        var res = JSON.parse(data)
+        console.log('listener => ', res)
+        switch (res.cmd) {
+          case "loginRes": // 登录成功回调
+            // 此处需要发送接收到的数据到服务端验证后再登录应用
+            break;
+          case "logoutRes": // 登出回调
+            break;
+          case "makeRechargeRes": // 充值回调
+            break;
+          case "getAppNotifysRes": // 交易链上处理完成回调
+            break;
+          case "confirmAppNotifyRes": // 交易链上处理完成回调接收确认回调
+            break;
+          case "getBalanceRes": // 获取余额
+            break;
+          case "getUserInfoRes": // 获取登录用户信息
+            break;
+          case "getNetTypeRes": // 获取网络类型
+            break;
+          case "invokescriptRes": // 合约读取调用
+            break;
+          case "makeRawTransactionRes": // 合约写入请求结果
+            break;
+          case "makeGasTransferRes": // GAS转账回调
+            break;
+          case "makeGasTransferMultiRes": // GAS批量转账回调
+            break;
+          case "changeNetTypeRes": // 网络切换回调
+            break;
+        }
+      };
+        var appid = "59";
+        var appkey = "8fcf42dbfae442a231477552e59a6e7b";
+        console.log('init sdk:'+appid);
+        BlackCat.SDK.init(appid, appkey, listener, "cn");
+        BlackCat.SDK.setDefaultNetType(2);
+        // BlackCat.SDK.showMain();
+        // BlackCat.SDK.login(function (res) {console.log( res);     });
+      </script>
   <canvas id="GameCanvas" oncontextmenu="event.preventDefault()" tabindex="0"></canvas>
   <div id="splash">
     <div class="progress-bar stripes">
@@ -62,7 +114,7 @@
     </div>
   </div>
 <script src="src/settings.js" charset="utf-8"></script>
-<%=eruda%>
 <script src="main.js" charset="utf-8"></script>
+
 </body>
 </html>

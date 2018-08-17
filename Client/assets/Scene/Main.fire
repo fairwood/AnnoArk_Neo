@@ -6385,7 +6385,7 @@
       }
     ],
     "_tag": -1,
-    "_active": false,
+    "_active": true,
     "_components": [
       {
         "__id__": 570
@@ -6882,7 +6882,7 @@
     "node": {
       "__id__": 177
     },
-    "_enabled": true,
+    "_enabled": false,
     "_spriteFrame": {
       "__uuid__": "1f6028cc-8878-4163-a2ce-ecbb1e63897d"
     },
@@ -6908,7 +6908,7 @@
     "node": {
       "__id__": 177
     },
-    "_enabled": true,
+    "_enabled": false,
     "delay": 0,
     "path": "UI/earth"
   },
@@ -22491,7 +22491,7 @@
       }
     ],
     "_tag": -1,
-    "_active": true,
+    "_active": false,
     "_components": [
       {
         "__id__": 834
