@@ -6,6 +6,7 @@ import CvsMain from "./CvsMain";
 import HomeUI from "./HomeUI";
 import MainCtrl from "./MainCtrl";
 import DialogPanel from "./UI/DialogPanel";
+import FakeBC from "./Internal/FakeBC";
 
 const { ccclass, property } = cc._decorator;
 
@@ -19,6 +20,9 @@ export const EncKey = 37234;
 @ccclass
 export default class BlockchainMgr extends cc.Component {
     static Instance: BlockchainMgr;
+
+    static readonly UseFake = true;
+
     onLoad() {
         BlockchainMgr.Instance = this;
     }
@@ -27,16 +31,16 @@ export default class BlockchainMgr extends cc.Component {
     // static BlockchainUrl: string = 'https://testnet.nebulas.io';
     static BlockchainUrl: string = 'http://localhost:8685';
     static getExplorerOfAccount(account: string) {
-        return `https://explorer.nebulas.io/#/address/${account}`;
+        return `https://explorer.neo.org/#/address/${account}`;
     }
     static getExplorerOfTx(txHash: string) {
-        return `https://explorer.nebulas.io/#/tx/${txHash}`;
+        return `https://explorer.neo.org/#/tx/${txHash}`;
     }
     static WalletAddress: string;
 
     static CheckWalletInterval = 10;
-    static FetchMyDataInterval = 7;
-    static FetchAllDataInterval = 20;
+    static FetchMyDataInterval = 2;
+    static FetchAllDataInterval = 5;
 
     checkWalletCountdown = 1e9;
     fetchMyDataInterval = 1e9;
@@ -62,21 +66,26 @@ export default class BlockchainMgr extends cc.Component {
         this.fetchAllDataCountdown -= dt;
 
         if (this.checkWalletCountdown <= 0) {
-            try {
-                let self = this;
-                let neb = new Neb();
-                neb.setRequest(new HttpRequest(BlockchainMgr.BlockchainUrl));
-                neb.api.getNebState().then(function (state) {
-                    // self.nebState = state;
-                    window.addEventListener('message', self.onGetWalletData);
-                    window.postMessage({
-                        "target": "contentscript",
-                        "data": {},
-                        "method": "getAccount",
-                    }, "*");
-                });
-            } catch (error) {
-                console.error(error);
+            if (BlockchainMgr.UseFake) {
+                BlockchainMgr.WalletAddress = 'APL5FCFSZrnG8L3cinkDRmXFDb27quJUWE';
+                HomeUI.Instance.edtBlockchainAddress.string = BlockchainMgr.WalletAddress ? BlockchainMgr.WalletAddress : '';
+            } else {
+                try {
+                    let self = this;
+                    let neb = new Neb();
+                    neb.setRequest(new HttpRequest(BlockchainMgr.BlockchainUrl));
+                    neb.api.getNebState().then(function (state) {
+                        // self.nebState = state;
+                        window.addEventListener('message', self.onGetWalletData);
+                        window.postMessage({
+                            "target": "contentscript",
+                            "data": {},
+                            "method": "getAccount",
+                        }, "*");
+                    });
+                } catch (error) {
+                    console.error(error);
+                }
             }
             this.checkWalletCountdown = BlockchainMgr.CheckWalletInterval;
         }
@@ -96,12 +105,16 @@ export default class BlockchainMgr extends cc.Component {
                 "args": JSON.stringify([BlockchainMgr.WalletAddress])
             }
             let self = this;
-            neb.api.call(from, ContractAddress, value, nonce, gas_price, gas_limit, contract).then(
-                self.onGetMyData
-            ).catch(function (err) {
-                console.log("call mydata error:" + err.message, from);
-            })
 
+            if (BlockchainMgr.UseFake) {
+                self.onGetMyData(FakeBC.instance.callFunction(from, callFunction, contract.args, 0));
+            } else {
+                neb.api.call(from, ContractAddress, value, nonce, gas_price, gas_limit, contract).then(
+                    self.onGetMyData
+                ).catch(function (err) {
+                    console.log("call mydata error:" + err.message, from);
+                })
+            }
             this.fetchMyDataInterval = BlockchainMgr.FetchMyDataInterval;
         }
         if (this.fetchAllDataCountdown <= 0) {
@@ -121,11 +134,16 @@ export default class BlockchainMgr extends cc.Component {
                 "args": "[]"
             }
             let self = this;
-            neb.api.call(from, ContractAddress, value, nonce, gas_price, gas_limit, contract).then(
-                self.onGetAllMapData
-            ).catch(function (err) {
-                console.log("call get_map_info error:" + err.message)
-            })
+
+            if (BlockchainMgr.UseFake) {
+                self.onGetAllMapData(FakeBC.instance.callFunction(from, callFunction, contract.args, 0));
+            } else {
+                neb.api.call(from, ContractAddress, value, nonce, gas_price, gas_limit, contract).then(
+                    self.onGetAllMapData
+                ).catch(function (err) {
+                    console.log("call get_map_info error:" + err.message)
+                })
+            }
 
             this.fetchAllDataCountdown = BlockchainMgr.FetchAllDataInterval;
         }
@@ -146,11 +164,15 @@ export default class BlockchainMgr extends cc.Component {
                 "function": callFunction,
                 "args": JSON.stringify(callArgs)
             }
-            neb.api.call(from, ContractAddress, value, nonce, gas_price, gas_limit, contract).then(
-                callback
-            ).catch(function (err) {
-                console.error(`Neb call ${functionName} error:` + err.message)
-            })
+            if (BlockchainMgr.UseFake) {
+                callback(FakeBC.instance.callFunction(from, callFunction, contract.args, value));
+            } else {
+                neb.api.call(from, ContractAddress, value, nonce, gas_price, gas_limit, contract).then(
+                    callback
+                ).catch(function (err) {
+                    console.error(`Neb call ${functionName} error:` + err.message)
+                })
+            }
         } catch (error) {
             console.error(error);
         }
@@ -212,56 +234,24 @@ export default class BlockchainMgr extends cc.Component {
             var nebPay = new NebPay();
             var callbackUrl = BlockchainMgr.BlockchainUrl;
             var to = ContractAddress;
-            let serialNumber = nebPay.call(to, value, callFunction, JSON.stringify(callArgs), {
-                qrcode: {
-                    showQRCode: false
-                },
-                goods: {
-                    name: "test",
-                    desc: "test goods"
-                },
-                callback: callbackUrl,
-                listener: callback
-            });
-        } catch (error) {
-            console.error(error);
-        }
-    }
 
-    sponsor(islandId, sponsorName, link, valueNas: number) {
-        try {
-            var nebPay = new NebPay();
-            var serialNumber;
-            var callbackUrl = BlockchainMgr.BlockchainUrl;
-            var to = ContractAddress;
-            var value = Math.ceil(valueNas * 1e6) / 1e6;
-            var callFunction = 'sponsor';
-            console.log("调用钱包sponsor(", islandId, sponsorName, link, valueNas);
-            var callArgs = JSON.stringify([islandId, sponsorName, link]);
-            serialNumber = nebPay.call(to, value, callFunction, callArgs, {
-                qrcode: {
-                    showQRCode: false
-                },
-                goods: {
-                    name: "test",
-                    desc: "test goods"
-                },
-                callback: callbackUrl,
-                listener: this.sponsorCallback
-            });
+            if (BlockchainMgr.UseFake) {
+                callback(FakeBC.instance.callFunction(BlockchainMgr.WalletAddress, callFunction, JSON.stringify(callArgs), value));
+            } else {
+                let serialNumber = nebPay.call(to, value, callFunction, JSON.stringify(callArgs), {
+                    qrcode: {
+                        showQRCode: false
+                    },
+                    goods: {
+                        name: "test",
+                        desc: "test goods"
+                    },
+                    callback: callbackUrl,
+                    listener: callback
+                });
+            }
         } catch (error) {
             console.error(error);
-        }
-    }
-    sponsorCallback(resp) {
-        console.log("sponsorCallback: ", resp);
-        if (resp.toString().substr(0, 5) != 'Error') {
-            DialogPanel.PopupWith2Buttons('感谢您的赞助',
-                '区块链交易已发送，等待出块\nTxHash:' + resp.txhash, '查看交易', () => {
-                    window.open('https://explorer.nebulas.io/#/tx/' + resp.txhash);
-                }, '确定', null);
-        } else {
-            ToastPanel.Toast('交易失败:' + resp);
         }
     }
 

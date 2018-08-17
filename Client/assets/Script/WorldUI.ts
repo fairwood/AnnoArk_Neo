@@ -434,7 +434,7 @@ export default class WorldUI extends BaseUI {
         }
         const island = this.focusedObjectNode ? this.focusedObjectNode.getComponent(Island) : null;
         if (!island) return;
-        CvsMain.OpenPanel(CityInfoPanel, () => CityInfoPanel.Instance.setAndRefreshIsland(island.data, 'watch'));
+        CvsMain.OpenPanel('CityInfoPanel', () => CityInfoPanel.Instance.setAndRefreshIsland(island.data, 'watch'));
     }
     onBtnCollectIslandClick() { //收获
         const island = this.focusedObjectNode ? this.focusedObjectNode.getComponent(Island) : null;
@@ -445,7 +445,7 @@ export default class WorldUI extends BaseUI {
                 if (resp.toString().substr(0, 5) != 'Error') {
                     DialogPanel.PopupWith2Buttons('准备收取数字货币',
                         '区块链交易已发送，等待出块\nTxHash:' + resp.txhash, '查看交易', () => {
-                            window.open('https://explorer.nebulas.io/#/tx/' + resp.txhash);
+                            window.open('https://explorer.neo.org/#/tx/' + resp.txhash);
                         }, '确定', null);
 
                     WorldUI.Instance.editSailDestinationMode = false;
@@ -465,7 +465,7 @@ export default class WorldUI extends BaseUI {
         const island = this.focusedObjectNode ? this.focusedObjectNode.getComponent(Island) : null;
         if (island) {
             console.log('onIslandIWantSponsorClick')
-            CvsMain.OpenPanel(SponsorIslandPanel, () => { SponsorIslandPanel.Instance.setData(island); });
+            CvsMain.OpenPanel('SponsorIslandPanel', () => { SponsorIslandPanel.Instance.setData(island); });
         }
     }
 
@@ -516,7 +516,7 @@ export default class WorldUI extends BaseUI {
             if (resp.toString().substr(0, 5) != 'Error') {
                 DialogPanel.PopupWith2Buttons('引擎开始预热，如果一切顺利，将在30秒内出发',
                     '区块链交易已发送，等待出块\nTxHash:' + resp.txhash, '查看交易', () => {
-                        window.open('https://explorer.nebulas.io/#/tx/' + resp.txhash);
+                        window.open('https://explorer.neo.org/#/tx/' + resp.txhash);
                     }, '确定', null);
 
                 WorldUI.Instance.editSailDestinationMode = false;
@@ -531,7 +531,7 @@ export default class WorldUI extends BaseUI {
         if (this.focusedObjectNode) {
             const city = this.focusedObjectNode.getComponent(ArkInWorld);
             if (city) {
-                CvsMain.OpenPanel(CityInfoPanel, () => {
+                CvsMain.OpenPanel('CityInfoPanel', () => {
                     CityInfoPanel.Instance.setAndRefreshUser(city.data, 'watch');
                 });
                 DataMgr.fetchUserDataFromBlockchain(city.data.address, (data) => {
@@ -547,7 +547,7 @@ export default class WorldUI extends BaseUI {
         if (this.focusedObjectNode) {
             const city = this.focusedObjectNode.getComponent(ArkInWorld);
             if (city) {
-                CvsMain.OpenPanel(CityInfoPanel, () => {
+                CvsMain.OpenPanel('CityInfoPanel', () => {
                     CityInfoPanel.Instance.setAndRefreshUser(city.data, 'attack');
                 });
                 DataMgr.fetchUserDataFromBlockchain(city.data.address, (data) => {
@@ -561,7 +561,7 @@ export default class WorldUI extends BaseUI {
         if (this.focusedObjectNode) {
             const pirate = this.focusedObjectNode.getComponent(Pirate);
             if (pirate) {
-                CvsMain.OpenPanel(CityInfoPanel, () => {
+                CvsMain.OpenPanel('CityInfoPanel', () => {
                     CityInfoPanel.Instance.setAndRefreshPirate(DataMgr.getPirateData(pirate.index), 'watch');
                 });
                 DataMgr.fetchPirateDataFromBlockchain(pirate.index, (data) => {
@@ -574,7 +574,7 @@ export default class WorldUI extends BaseUI {
         if (this.focusedObjectNode) {
             const pirate = this.focusedObjectNode.getComponent(Pirate);
             if (pirate) {
-                CvsMain.OpenPanel(CityInfoPanel, () => {
+                CvsMain.OpenPanel('CityInfoPanel', () => {
                     CityInfoPanel.Instance.setAndRefreshPirate(DataMgr.getPirateData(pirate.index), 'attack');
                 });
                 DataMgr.fetchPirateDataFromBlockchain(pirate.index, (data) => {

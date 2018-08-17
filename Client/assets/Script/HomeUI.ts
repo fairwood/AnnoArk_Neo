@@ -11,6 +11,8 @@ import DialogPanel from "./UI/DialogPanel";
 
 const { ccclass, property } = cc._decorator;
 
+var BlackCat;
+
 @ccclass
 export default class HomeUI extends BaseUI {
     static Instance: HomeUI;
@@ -77,7 +79,7 @@ export default class HomeUI extends BaseUI {
     onClaim() {
         //检查昵称、国家
         if (!this.lblNickname.string || !this.country) {
-            CvsMain.OpenPanel(EditNicknamePanel);
+            CvsMain.OpenPanel('EditNicknamePanel');
             ToastPanel.Toast('请先设置国旗和昵称');
             return;
         }
@@ -91,7 +93,7 @@ export default class HomeUI extends BaseUI {
                 if (resp.toString().substr(0, 5) != 'Error') {
                     DialogPanel.PopupWith2Buttons('正在发送方舟，请等候15秒',
                         '区块链交易已发送，等待出块\nTxHash:' + resp.txhash, '查看交易', () => {
-                            window.open('https://explorer.nebulas.io/#/tx/' + resp.txhash);
+                            window.open('https://explorer.neo.org/#/tx/' + resp.txhash);
                         }, '确定', null);
                 } else {
                     ToastPanel.Toast('交易失败:' + resp);
@@ -101,7 +103,7 @@ export default class HomeUI extends BaseUI {
     }
 
     onBtnEditNicknameClick() {
-        CvsMain.OpenPanel(EditNicknamePanel);
+        CvsMain.OpenPanel('EditNicknamePanel');
     }
 
     onWatchWorldClick() {
@@ -122,7 +124,7 @@ export default class HomeUI extends BaseUI {
     }
 
     onExplorerClick() {
-        window.open('https://explorer.nebulas.io/address/' + BlockchainMgr.WalletAddress);
+        window.open('https://explorer.neo.org/address/' + BlockchainMgr.WalletAddress);
     }
 
     onBookClick() {

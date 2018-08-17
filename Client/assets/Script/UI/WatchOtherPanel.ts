@@ -70,7 +70,7 @@ export default class WatchOtherPanel extends cc.Component {
         const refresh = (data) => {
             if (AttackOtherPanel.Instance) AttackOtherPanel.Instance.setAndRefresh(data);
         };
-        CvsMain.OpenPanel(AttackOtherPanel, () => refresh(DataMgr.allUsers[this.user.address]));
+        CvsMain.OpenPanel('AttackOtherPanel', () => refresh(DataMgr.allUsers[this.user.address]));
         DataMgr.fetchUserDataFromBlockchain(this.user.address, refresh);
         this.close();
     }

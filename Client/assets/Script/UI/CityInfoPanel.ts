@@ -427,7 +427,7 @@ export default class CityInfoPanel extends cc.Component {
             if (resp.toString().substr(0, 5) != 'Error') {
                 DialogPanel.PopupWith2Buttons('正在递交作战计划',
                     '区块链交易已发送，等待出块\nTxHash:' + resp.txhash, '查看交易', () => {
-                        window.open('https://explorer.nebulas.io/#/tx/' + resp.txhash);
+                        window.open('https://explorer.neo.org/#/tx/' + resp.txhash);
                     }, '确定', null);
             } else {
                 ToastPanel.Toast('交易失败:' + resp);

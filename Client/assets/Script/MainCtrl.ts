@@ -2,6 +2,7 @@ import CvsMain from "./CvsMain";
 import { DataMgr } from "./DataMgr";
 import HomeUI from "./HomeUI";
 import BlockchainMgr from "./BlockchainMgr";
+import FakeBC from "./Internal/FakeBC";
 
 const { ccclass } = cc._decorator;
 
@@ -16,12 +17,15 @@ export default class MainCtrl extends cc.Component {
         cc.loader.loadRes('Building', function (err, txt) {
             console.log('Building loaded', txt);
             DataMgr.BuildingConfig = txt;
+            FakeBC.instance.callFunction('APL5FCFSZrnG8L3cinkDRmXFDb27quJUWE', 'setBuildingInfo', JSON.stringify([DataMgr.BuildingConfig]), 0);
         }.bind(this));
         cc.loader.loadRes('Cargo', function (err, txt) {
             console.log('Cargo loaded', txt);
             DataMgr.CargoConfig = txt;
+            FakeBC.instance.callFunction('APL5FCFSZrnG8L3cinkDRmXFDb27quJUWE', 'setCargoInfo', JSON.stringify([DataMgr.CargoConfig]), 0);
         }.bind(this));
         DataMgr.init();
+        
     }
 
     static Ticks = 0;

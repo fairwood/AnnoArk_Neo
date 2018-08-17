@@ -287,7 +287,7 @@ export default class BuildingInfoPanel extends cc.Component {
                 if (resp.toString().substr(0, 5) != 'Error') {
                     DialogPanel.PopupWith2Buttons('正在递交升级计划',
                         '区块链交易已发送，等待出块\nTxHash:' + resp.txhash, '查看交易', () => {
-                            window.open('https://explorer.nebulas.io/#/tx/' + resp.txhash);
+                            window.open('https://explorer.neo.org/#/tx/' + resp.txhash);
                         }, '确定', null);
                 } else {
                     ToastPanel.Toast('交易失败:' + resp);
@@ -303,10 +303,10 @@ export default class BuildingInfoPanel extends cc.Component {
         } else {
             info = idOrInfo;
         }
-        CvsMain.OpenPanel(BuildingInfoPanel, () => BuildingInfoPanel.Instance.setAndRefreshInfo(info));
+        CvsMain.OpenPanel('BuildingInfoPanel', () => BuildingInfoPanel.Instance.setAndRefreshInfo(info));
     }
     static ShowBuildingData(ij: IJ, bdg: BuildingData) {
-        CvsMain.OpenPanel(BuildingInfoPanel, () => BuildingInfoPanel.Instance.setAndRefreshBuilding(ij, bdg));
+        CvsMain.OpenPanel('BuildingInfoPanel', () => BuildingInfoPanel.Instance.setAndRefreshBuilding(ij, bdg));
     }
 
     close() {

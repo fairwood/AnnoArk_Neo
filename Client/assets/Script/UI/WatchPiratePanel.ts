@@ -66,7 +66,7 @@ export default class WatchPiratePanel extends cc.Component {
         const refresh = (data) => {
             AttackPiratePanel.Instance.setAndRefresh(data);
         };
-        CvsMain.OpenPanel(AttackPiratePanel, () => refresh(DataMgr.getPirateData(this.pirateData.index)));
+        CvsMain.OpenPanel('AttackPiratePanel', () => refresh(DataMgr.getPirateData(this.pirateData.index)));
         DataMgr.fetchPirateDataFromBlockchain(this.pirateData.index, refresh);
         this.close();
     }
