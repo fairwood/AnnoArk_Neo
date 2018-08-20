@@ -62,8 +62,30 @@ export default class BlockchainMgr extends cc.Component {
 
         if (this.checkWalletCountdown <= 0) {
             if (BlockchainMgr.UseFake) {
-                BlockchainMgr.WalletAddress = 'APL5FCFSZrnG8L3cinkDRmXFDb27quJUWE';
-                HomeUI.Instance.edtBlockchainAddress.string = BlockchainMgr.WalletAddress ? BlockchainMgr.WalletAddress : '';
+                // BlockchainMgr.WalletAddress = 'APL5FCFSZrnG8L3cinkDRmXFDb27quJUWE';
+                // HomeUI.Instance.edtBlockchainAddress.string = BlockchainMgr.WalletAddress ? BlockchainMgr.WalletAddress : '';
+
+
+                if(BlackCat && BlackCat.SDK){
+
+                    const callbck = ()=>{
+
+                        let hui = HomeUI.Instance;
+
+                        return (res)=>{
+                            const address = res['wallet'];
+                            if(address){
+                                // TODO: 添加设置账号信息
+                                console.log('update address ', address);
+                                BlockchainMgr.WalletAddress = address;
+                                hui.edtBlockchainAddress.string = address;
+                            }
+
+                        };
+                    }
+                    BlackCat.SDK.login(callbck());
+                }
+
             } else {
                 try {
                     try {

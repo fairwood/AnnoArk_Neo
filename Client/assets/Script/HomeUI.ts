@@ -41,16 +41,6 @@ export default class HomeUI extends BaseUI {
 
     start() {
         // ToastPanel.Toast('正在读取您的钱包信息，请稍候');
-        if(BlackCat && BlackCat.SDK){
-            BlackCat.SDK.login(function (res) {
-                console.log('login callback',res);
-                const address = res['wallet'];
-                console.log('address',address);
-                if(address){
-                    // TODO: 添加设置账号信息
-                }
-            });
-        }
     }
 
     update(dt) {
