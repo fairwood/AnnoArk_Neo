@@ -1520,7 +1520,6 @@ export default class FakeBC {
                 return this.allUserList;
             },
             getUser: function (address) {
-                console.log('BC.getUser', this.allUsers);
                 return this.allUsers.get(address);
             },
             getPirateInfo: function (index) {

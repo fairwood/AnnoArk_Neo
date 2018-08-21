@@ -3055,7 +3055,7 @@
       "b": 230,
       "a": 255
     },
-    "_N$placeholder": "点击手动输入钱包地址……",
+    "_N$placeholder": "",
     "_N$placeholderFontSize": 20,
     "_N$placeholderFontColor": {
       "__type__": "cc.Color",
@@ -5607,7 +5607,7 @@
     "_scaleY": 1,
     "_position": {
       "__type__": "cc.Vec2",
-      "x": -312,
+      "x": -173,
       "y": 31
     },
     "_skewX": 0,
@@ -5807,7 +5807,7 @@
       }
     ],
     "_tag": -1,
-    "_active": true,
+    "_active": false,
     "_components": [
       {
         "__id__": 155
@@ -6079,7 +6079,7 @@
     "_scaleY": 1,
     "_position": {
       "__type__": "cc.Vec2",
-      "x": 312,
+      "x": 160,
       "y": 31
     },
     "_skewX": 0,

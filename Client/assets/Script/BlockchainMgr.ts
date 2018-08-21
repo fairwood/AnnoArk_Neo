@@ -17,6 +17,8 @@ declare var HttpRequest: any;
 export const ContractAddress = 'n1wJnaszNyRzV8EFmA7UMnkXSC4Cugb8Zp8'; //
 export const EncKey = 37234;
 
+// var BlackCat;
+
 @ccclass
 export default class BlockchainMgr extends cc.Component {
     static Instance: BlockchainMgr;
@@ -31,10 +33,10 @@ export default class BlockchainMgr extends cc.Component {
     // static BlockchainUrl: string = 'https://testnet.nebulas.io';
     static BlockchainUrl: string = 'http://localhost:8685';
     static getExplorerOfAccount(account: string) {
-        return `https://explorer.neo.org/#/address/${account}`;
+        return `https://neoscan.io`;
     }
     static getExplorerOfTx(txHash: string) {
-        return `https://explorer.neo.org/#/tx/${txHash}`;
+        return `https://neoscan.io`;
     }
     static WalletAddress: string;
 
@@ -62,9 +64,8 @@ export default class BlockchainMgr extends cc.Component {
 
         if (this.checkWalletCountdown <= 0) {
             if (BlockchainMgr.UseFake) {
-                // BlockchainMgr.WalletAddress = 'APL5FCFSZrnG8L3cinkDRmXFDb27quJUWE';
+                BlockchainMgr.WalletAddress = 'APL5FCFSZrnG8L3cinkDRmXFDb27quJUWE';
                 // HomeUI.Instance.edtBlockchainAddress.string = BlockchainMgr.WalletAddress ? BlockchainMgr.WalletAddress : '';
-
 
                 if(BlackCat && BlackCat.SDK){
 
@@ -77,7 +78,7 @@ export default class BlockchainMgr extends cc.Component {
                             if(address){
                                 // TODO: 添加设置账号信息
                                 console.log('update address ', address);
-                                BlockchainMgr.WalletAddress = address;
+                                // BlockchainMgr.WalletAddress = address;
                                 hui.edtBlockchainAddress.string = address;
                             }
 

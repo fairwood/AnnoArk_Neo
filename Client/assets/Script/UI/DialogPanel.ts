@@ -43,11 +43,11 @@ export default class DialogPanel extends cc.Component {
         this.Instance.func0 = button0Callback;
         this.Instance.lblBtn0.string = btn0String;
         this.Instance.btn0.active = true;
-        this.Instance.btn0.position = new cc.Vec2(-150, 0);
+        this.Instance.btn0.position = new cc.Vec2(-170, 0);
         this.Instance.func1 = button1Callback;
         this.Instance.lblBtn1.string = btn1String;
         this.Instance.btn1.active = true;
-        this.Instance.btn1.position = new cc.Vec2(150, 0);
+        this.Instance.btn1.position = new cc.Vec2(170, 0);
     }
     onBtn0Click() {
         if (this.func0) this.func0();

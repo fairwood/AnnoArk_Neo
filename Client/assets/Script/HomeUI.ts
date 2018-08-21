@@ -80,7 +80,7 @@ export default class HomeUI extends BaseUI {
             const country = HomeUI.Instance.country;
             BlockchainMgr.Instance.callFunction('claimNewUser', [nickname, country], 0, (resp) => {
                 console.log("claimNewUser: ", resp);
-                if (resp.toString().substr(0, 5) != 'Error') {
+                if (resp && resp.toString().substr(0, 5) != 'Error') {
                     DialogPanel.PopupWith2Buttons('正在发送方舟，请等候15秒',
                         '区块链交易已发送，等待出块\nTxHash:' + resp.txhash, '查看交易', () => {
                             window.open('https://explorer.neo.org/#/tx/' + resp.txhash);
@@ -114,7 +114,7 @@ export default class HomeUI extends BaseUI {
     }
 
     onExplorerClick() {
-        window.open('https://explorer.neo.org/address/' + BlockchainMgr.WalletAddress);
+        window.open('https://neoscan.io/');
     }
 
     onBookClick() {
