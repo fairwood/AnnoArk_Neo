@@ -12,9 +12,10 @@ namespace Contract
     {
         public static class Const
         {
-            public const string PxUser = "U";
-            public const string PxBancor = "B";
-            public const string PxGlobal = "G";
+            public const string PxUser = "U_";
+            public const string PxBancor = "B_";
+            public const string PxMaxUID = "MUID_";
+            public const string PxUID = "UID_";
             public const float cityMoveSpeed = 150;
             public const float raidCityCargoRate = 0.1f;
             public const float safeZoneLine = 1567;
@@ -59,20 +60,51 @@ namespace Contract
         public static class Util
         {
 
+            public static BigInteger GetMaxUID()
+            {
+                byte[] data = Storage.Get(Storage.CurrentContext, Const.PxMaxUID);
+                if (data == null || data.Length < 1)
+                {
+                    return 0;
+                }
+                return (BigInteger)Helper.Deserialize(data);
+            }
+
+            public static BigInteger SetMaxUID(BigInteger cur)
+            {
+                Storage.Put(Storage.CurrentContext, Const.PxMaxUID, Helper.Serialize(cur));
+                return cur;
+            }
+
+            public static byte[] GetUID(BigInteger index)
+            {
+
+                byte[] key = Const.PxUID.AsByteArray().Concat(index.AsByteArray());
+                return Storage.Get(Storage.CurrentContext, key);
+            }
+
+            public static void SetUID(BigInteger index, byte[] data)
+            {
+                byte[] key = Const.PxUID.AsByteArray().Concat(index.AsByteArray());
+                Storage.Put(Storage.CurrentContext, key, data);
+            }
+
             public static User GetUser(byte[] addr)
             {
                 byte[] key = Const.PxUser.AsByteArray().Concat(addr);
                 byte[] bytes = Storage.Get(Storage.CurrentContext, key);
-                if (bytes == null || bytes.Length < 1) {
+                if (bytes == null || bytes.Length < 1)
+                {
                     return null;
                 }
                 return (User)Helper.Deserialize(bytes);
             }
 
-            public static void SetUser(User user) {
+            public static void SetUser(User user)
+            {
                 byte[] bytes = Helper.Serialize(user);
                 byte[] key = Const.PxUser.AsByteArray().Concat(user.address);
-                Storage.Put(Storage.CurrentContext, key,bytes);
+                Storage.Put(Storage.CurrentContext, key, bytes);
             }
 
         }
@@ -104,7 +136,9 @@ namespace Contract
                     return VerifySignature(signature, Owner);
                 }
                 return true;
-            } else if (Runtime.Trigger == TriggerType.Application) {
+            }
+            else if (Runtime.Trigger == TriggerType.Application)
+            {
                 //必须在入口函数取得callscript，调用脚本的函数，也会导致执行栈变化，再取callscript就晚了
                 var callscript = ExecutionEngine.CallingScriptHash;
 
@@ -118,10 +152,17 @@ namespace Contract
                     return Version();
                 }
 
-                if (operation == "userRegister")
+                switch (operation)
                 {
+                    case "userRegister":
+                        return UserRegister(args);
+                    case "getUser":
+                        return GetUser(args);
+                    case "getUID":
+                        return GetUID(args);
+                    default:
+                        break;
 
-                    return UserRegister(args);
                 }
             }
             return false;
@@ -139,17 +180,55 @@ namespace Contract
             else
             {
                 User find = Util.GetUser(from);
-                if (find != null) {
+                if (find != null)
+                {
                     // has register
                     return false;
                 }
-              
+
                 //Put new user into storage
                 User user = new User();
                 user.address = from;
                 user.nickname = (byte[])args[1];
                 Util.SetUser(user);
+
+                BigInteger max = Util.GetMaxUID();
+                BigInteger cur = BigInteger.Add(max, 1);
+                Util.SetMaxUID(cur);
+                Util.SetUID(cur, from);
                 return true;
+            }
+        }
+
+        public static User GetUser(params object[] args)
+        {
+
+            if (args.Length < 1) return null;
+
+            byte[] from = (byte[])args[0];
+            if (!Runtime.CheckWitness(from))
+            {
+                return null;
+            }
+            else
+            {
+                return Util.GetUser(from);
+            }
+        }
+
+        public static byte[] GetUID(params object[] args)
+        {
+            if (args.Length < 2) return null;
+
+            byte[] from = (byte[])args[0];
+            if (!Runtime.CheckWitness(from))
+            {
+                return null;
+            }
+            else
+            {
+                BigInteger indx = (BigInteger)args[1];
+                return Util.GetUID(indx);
             }
         }
     }
