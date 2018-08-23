@@ -1,6 +1,6 @@
 # 方舟纪元简介
 
-![](https://github.com/fairwood/AnnoArk_Neo/blob/master/Marketing/ppt/%E5%B9%BB%E7%81%AF%E7%89%871.JPG?raw=true)
+![](https://github.com/fairwood/AnnoArk_Neo/blob/master/Marketing/ppt/%E5%B9%BB%E7%81%AF%E7%89%872.JPG)
 ## 玩法简介
 
 游戏的背景设定在近未来，一颗彗星击中南极大陆导致海平面巨量上升，人类只能生活在称作方舟的浮岛上。玩家可以在方舟上建造城市，产出资源，探索整个地球，和其他玩家争夺地盘和数字货币奖金。
@@ -9,7 +9,38 @@
 
 方舟纪元是一款完整的SLG游戏。玩法包括：城市建设、资源生产、攻打海盗的PVE、掠夺其他玩家的PVP、抢占钻石岛收获数字货币、探索剧情地点解密故事线等等。
 
-![主界面](https://github.com/fairwood/AnnoArk_Neo/blob/master/Marketing/home_preview.jpg)
+![](https://github.com/fairwood/AnnoArk_Neo/blob/master/Marketing/ppt/%E5%B9%BB%E7%81%AF%E7%89%875.JPG)
+
+![](https://github.com/fairwood/AnnoArk_Neo/blob/master/Marketing/ppt/%E5%B9%BB%E7%81%AF%E7%89%876.JPG)
+
+生产出甲烷之后，可以航行到地球的任意角落。跨越地球需要约2天的时间。
+
+大部分交互都有距离限制，所以方舟需要频繁移动。
+
+进行公会战之前，需要长时间布局规划。
+
+![](https://github.com/fairwood/AnnoArk_Neo/blob/master/Marketing/ppt/%E5%B9%BB%E7%81%AF%E7%89%877.JPG)
+![](https://github.com/fairwood/AnnoArk_Neo/blob/master/Marketing/ppt/%E5%B9%BB%E7%81%AF%E7%89%878.JPG)
+![](https://github.com/fairwood/AnnoArk_Neo/blob/master/Marketing/ppt/%E5%B9%BB%E7%81%AF%E7%89%879.JPG)
+![](https://github.com/fairwood/AnnoArk_Neo/blob/master/Marketing/ppt/%E5%B9%BB%E7%81%AF%E7%89%8710.JPG)
+![](https://github.com/fairwood/AnnoArk_Neo/blob/master/Marketing/ppt/%E5%B9%BB%E7%81%AF%E7%89%8711.JPG)
+![](https://github.com/fairwood/AnnoArk_Neo/blob/master/Marketing/ppt/%E5%B9%BB%E7%81%AF%E7%89%8712.JPG)
+![](https://github.com/fairwood/AnnoArk_Neo/blob/master/Marketing/ppt/%E5%B9%BB%E7%81%AF%E7%89%8713.JPG)
+![](https://github.com/fairwood/AnnoArk_Neo/blob/master/Marketing/ppt/%E5%B9%BB%E7%81%AF%E7%89%8714.JPG)
+![](https://github.com/fairwood/AnnoArk_Neo/blob/master/Marketing/ppt/%E5%B9%BB%E7%81%AF%E7%89%8715.JPG)
+![](https://github.com/fairwood/AnnoArk_Neo/blob/master/Marketing/ppt/%E5%B9%BB%E7%81%AF%E7%89%8716.JPG)
+![](https://github.com/fairwood/AnnoArk_Neo/blob/master/Marketing/ppt/%E5%B9%BB%E7%81%AF%E7%89%8717.JPG)
+![](https://github.com/fairwood/AnnoArk_Neo/blob/master/Marketing/ppt/%E5%B9%BB%E7%81%AF%E7%89%8718.JPG)
+![](https://github.com/fairwood/AnnoArk_Neo/blob/master/Marketing/ppt/%E5%B9%BB%E7%81%AF%E7%89%8719.JPG)
+![](https://github.com/fairwood/AnnoArk_Neo/blob/master/Marketing/ppt/%E5%B9%BB%E7%81%AF%E7%89%8720.JPG)
+![](https://github.com/fairwood/AnnoArk_Neo/blob/master/Marketing/ppt/%E5%B9%BB%E7%81%AF%E7%89%8721.JPG)
+![](https://github.com/fairwood/AnnoArk_Neo/blob/master/Marketing/ppt/%E5%B9%BB%E7%81%AF%E7%89%8722.JPG)
+![](https://github.com/fairwood/AnnoArk_Neo/blob/master/Marketing/ppt/%E5%B9%BB%E7%81%AF%E7%89%8723.JPG)
+![](https://github.com/fairwood/AnnoArk_Neo/blob/master/Marketing/ppt/%E5%B9%BB%E7%81%AF%E7%89%8724.JPG)
+![](https://github.com/fairwood/AnnoArk_Neo/blob/master/Marketing/ppt/%E5%B9%BB%E7%81%AF%E7%89%8725.JPG)
+![](https://github.com/fairwood/AnnoArk_Neo/blob/master/Marketing/ppt/%E5%B9%BB%E7%81%AF%E7%89%8726.JPG)
+![](https://github.com/fairwood/AnnoArk_Neo/blob/master/Marketing/ppt/%E5%B9%BB%E7%81%AF%E7%89%8727.JPG)
+
 ## 建设和生产
 
 20多种建筑，每个建筑有7个等级。
