@@ -92,5 +92,8 @@
 ![](https://github.com/fairwood/AnnoArk_Neo/blob/master/Marketing/ppt/%E5%B9%BB%E7%81%AF%E7%89%8726.JPG)
 ![](https://github.com/fairwood/AnnoArk_Neo/blob/master/Marketing/ppt/%E5%B9%BB%E7%81%AF%E7%89%8727.JPG)
 ![](https://github.com/fairwood/AnnoArk_Neo/blob/master/Marketing/ppt/%E5%B9%BB%E7%81%AF%E7%89%8728.JPG)
+
+仙境之岛是一个内嵌游戏，不在本Repository和NEO游戏比赛中体现。
+
 ![](https://github.com/fairwood/AnnoArk_Neo/blob/master/Marketing/ppt/%E5%B9%BB%E7%81%AF%E7%89%8723.JPG)
 ![](https://github.com/fairwood/AnnoArk_Neo/blob/master/Marketing/ppt/%E5%B9%BB%E7%81%AF%E7%89%8724.JPG)
