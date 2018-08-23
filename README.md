@@ -51,6 +51,12 @@
 海盗巢穴每一小时刷新。
 
 ![](https://github.com/fairwood/AnnoArk_Neo/blob/master/Marketing/ppt/%E5%B9%BB%E7%81%AF%E7%89%8713.JPG)
+![](https://github.com/fairwood/AnnoArk_Neo/blob/master/Marketing/ppt/%E5%B9%BB%E7%81%AF%E7%89%8714.JPG)
+
+玩家可以自组织出公会、联盟等组织形式，这些都不需要区块链做任何支持。而方舟拼接机制是组织的一个有实际作用的链上体现。
+
+最终可能演化出超大群岛，甚至重建大陆。
+
 ![](https://github.com/fairwood/AnnoArk_Neo/blob/master/Marketing/ppt/%E5%B9%BB%E7%81%AF%E7%89%8715.JPG)
 ![](https://github.com/fairwood/AnnoArk_Neo/blob/master/Marketing/ppt/%E5%B9%BB%E7%81%AF%E7%89%8716.JPG)
 
